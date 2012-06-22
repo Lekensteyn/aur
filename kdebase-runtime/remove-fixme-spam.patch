@@ -1,0 +1,23 @@
+From 84078427225b1db2279dd05a8f8454c6c27cc9e0 Mon Sep 17 00:00:00 2001
+From: Daniel Schaal <farbing@web.de>
+Date: Sat, 19 May 2012 17:11:28 +0200
+Subject: [PATCH] remove FIXME output to avoid spamming xsession-errors
+
+---
+ nepomuk/services/storage/resourcewatchermanager.cpp |    1 -
+ 1 file changed, 1 deletion(-)
+
+diff --git a/nepomuk/services/storage/resourcewatchermanager.cpp b/nepomuk/services/storage/resourcewatchermanager.cpp
+index 986ff60..c0721a8 100644
+--- a/nepomuk/services/storage/resourcewatchermanager.cpp
++++ b/nepomuk/services/storage/resourcewatchermanager.cpp
+@@ -121,7 +121,6 @@ Nepomuk::ResourceWatcherManager::~ResourceWatcherManager()
+ void Nepomuk::ResourceWatcherManager::addStatement(const Soprano::Statement& st)
+ {
+     // FIXME!
+-    kError() << "FIXME";
+     //addProperty( st.subject(), st.predicate().uri(), QList<Soprano::Node>() << st.object() );
+ }
+ 
+-- 
+1.7.10

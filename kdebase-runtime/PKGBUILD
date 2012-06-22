@@ -15,11 +15,12 @@ optdepends=('htdig: to build the search index in khelpcenter'
             'rarian: needed by khelpcenter'
             'gdb: drkonq crash handler')
 install="${pkgname}.install"
-source=("http://download.kde.org/stable/${pkgver}/src/kde-runtime-${pkgver}.tar.xz")
-sha1sums=('557fada748de52e5275058c50ec3cf8a652c0001')
+source=("http://download.kde.org/stable/${pkgver}/src/kde-runtime-${pkgver}.tar.xz" remove-fixme-spam.patch)
+sha1sums=('557fada748de52e5275058c50ec3cf8a652c0001' 'a5f7fbd8b3f3958429600f74d24f0fa645bd4e88')
 
 build() {
     cd "${srcdir}"
+    patch -d "kde-runtime-${pkgver}" -p1 < remove-fixme-spam.patch
 	mkdir build
 	cd build
 	cmake ../kde-runtime-${pkgver} \
