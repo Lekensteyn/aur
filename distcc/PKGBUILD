@@ -49,5 +49,6 @@ package() {
   ln -sf /usr/bin/${pkgname} ${pkgdir}/usr/lib/${pkgname}/bin/cc
   ln -sf /usr/bin/${pkgname} ${pkgdir}/usr/lib/${pkgname}/bin/gcc
   ln -sf /usr/bin/${pkgname} ${pkgdir}/usr/lib/${pkgname}/bin/g++
+  ln -sf /usr/bin/${pkgname} ${pkgdir}/usr/lib/${pkgname}/bin/c++
   ln -sf /usr/bin/${pkgname} ${pkgdir}/usr/lib/${pkgname}/bin/cpp
 }
