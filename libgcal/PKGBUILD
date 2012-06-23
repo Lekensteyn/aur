@@ -9,12 +9,18 @@ makedepends=('cmake' 'pkgconfig')
 options=('!libtool')
 depends=('libxml2' 'curl')
 license=('GPL')
-source=(http://libgcal.googlecode.com/files/$pkgname-$pkgver.tar.bz2)
-sha1sums=('d616b911a99b1846851371184dcd547dccf548de')
+source=(http://libgcal.googlecode.com/files/$pkgname-$pkgver.tar.bz2
+        check-for-empty-strings-before-copy-them.patch
+        use-https-instead-of-http.patch)
+sha1sums=('d616b911a99b1846851371184dcd547dccf548de'
+          '45d2492262512a05634936a8c6289d731d31cd19'
+          '51c324372fe940ca1cc62ba0dcc39b666b19c061')
 
 build() 
 {
   cd $srcdir/$pkgname-$pkgver
+  patch -Np1 -i ../check-for-empty-strings-before-copy-them.patch
+  patch -Np1 -i ../use-https-instead-of-http.patch
   autoreconf -i -f
   mkdir build
   cd build

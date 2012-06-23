@@ -1,0 +1,48 @@
+commit 2ac14a59fd7f9236f19a2625d9b81ec5e676fc18
+Author: horuga23 <horuga23@googlemail.com>
+Date:   Wed Jan 12 17:41:39 2011 +0100
+
+    Bugfix: Checks now for empty strings before copy them. (Issue #69 on https://code.google.com/p/libgcal/)
+
+diff --git a/src/atom_parser.c b/src/atom_parser.c
+index bab8987..2905578 100644
+--- a/src/atom_parser.c
++++ b/src/atom_parser.c
+@@ -44,7 +44,6 @@ POSSIBILITY OF SUCH DAMAGE.
+ #include "internal_gcal.h"
+ #include <string.h>
+ 
+-
+ void workaround_edit_url(char *inplace)
+ {
+ 	char *aux, *tmp;
+@@ -282,7 +281,8 @@ static int extract_and_check_multi(xmlDoc *doc, char *xpath_expression,
+ 		if (attr2) {
+ 			if (xmlHasProp(node->nodeTab[i], attr2)) {
+ 				tmp = xmlGetProp(node->nodeTab[i], attr2);
+-				(*types)[i] = strdup(strchr(tmp,'#') + 1);
++				if(strchr(tmp,'#'))
++					(*types)[i] = strdup(strchr(tmp,'#') + 1);
+ 				xmlFree(tmp);
+ 			}
+ 			else
+@@ -292,7 +292,8 @@ static int extract_and_check_multi(xmlDoc *doc, char *xpath_expression,
+ 		if (attr3) {
+ 			if (xmlHasProp(node->nodeTab[i], attr3)) {
+ 				tmp = xmlGetProp(node->nodeTab[i], attr3);
+-				(*protocols)[i] = strdup(strchr(tmp,'#') + 1);
++				if(strchr(tmp,'#'))
++					(*protocols)[i] = strdup(strchr(tmp,'#') + 1);
+ 				xmlFree(tmp);
+ 			}
+ 			else
+@@ -383,7 +384,8 @@ static int extract_and_check_multisub(xmlDoc *doc, char *xpath_expression,
+ 		if (attr1) {
+ 			if (xmlHasProp(node->nodeTab[i], attr1)) {
+ 				tmp = xmlGetProp(node->nodeTab[i], attr1);
+-				(*types)[i] = strdup(strchr(tmp,'#') + 1);
++				if(strchr(tmp,'#'))
++					(*types)[i] = strdup(strchr(tmp,'#') + 1);
+ 				xmlFree(tmp);
+ 			} else
+ 				(*types)[i] = strdup("");
