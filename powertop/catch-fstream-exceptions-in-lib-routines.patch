@@ -1,0 +1,103 @@
+From d29dd9c60b931bb407e42554cd128d192036e236 Mon Sep 17 00:00:00 2001
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Date: Fri, 18 May 2012 13:17:39 +0300
+Subject: [PATCH 2/2] catch fstream exceptions in lib routines
+
+Catch possible fstream and traits_type exceptions in lib.
+
+Reported-by: Lekensteyn <lekensteyn@gmail.com>
+Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+---
+ src/lib.cpp | 54 +++++++++++++++++++++++++++++++++++++++---------------
+ 1 file changed, 39 insertions(+), 15 deletions(-)
+
+diff --git a/src/lib.cpp b/src/lib.cpp
+index 53638dd..0c2c1f1 100644
+--- a/src/lib.cpp
++++ b/src/lib.cpp
+@@ -172,8 +172,13 @@ void write_sysfs(const string &filename, const string &value)
+ 	file.open(filename.c_str(), ios::out);
+ 	if (!file)
+ 		return;
+-	file << value;
+-	file.close();
++	try 
++	{
++		file << value;
++		file.close();
++	} catch (std::exception &exc) {
++		return;
++	}
+ }
+ 
+ int read_sysfs(const string &filename, bool *ok)
+@@ -187,10 +192,17 @@ int read_sysfs(const string &filename, bool *ok)
+ 			*ok = false;
+ 		return 0;
+ 	}
+-	file >> i;
++	try
++	{
++		file >> i;
++		if (ok)
++			*ok = true;
++	} catch (std::exception &exc) {
++		if (ok)
++			*ok = false;
++		i = 0;
++	}
+ 	file.close();
+-	if (ok)
+-		*ok = true;
+ 	return i;
+ }
+ 
+@@ -203,11 +215,17 @@ string read_sysfs_string(const string &filename)
+ 	file.open(filename.c_str(), ios::in);
+ 	if (!file)
+ 		return "";
+-	file.getline(content, 4096);
+-	file.close();
+-	c = strchr(content, '\n');
+-	if (c)
+-		*c = 0;
++	try
++	{
++		file.getline(content, 4096);
++		file.close();
++		c = strchr(content, '\n');
++		if (c)
++			*c = 0;
++	} catch (std::exception &exc) {
++		file.close();
++		return "";
++	}
+ 	return content;
+ }
+ 
+@@ -224,11 +242,17 @@ string read_sysfs_string(const char *format, const char *param)
+ 	file.open(filename, ios::in);
+ 	if (!file)
+ 		return "";
+-	file.getline(content, 4096);
+-	file.close();
+-	c = strchr(content, '\n');
+-	if (c)
+-		*c = 0;
++	try
++	{
++		file.getline(content, 4096);
++		file.close();
++		c = strchr(content, '\n');
++		if (c)
++			*c = 0;
++	} catch (std::exception &exc) {
++		file.close();
++		return "";
++	}
+ 	return content;
+ }
+ 
+-- 
+1.7.11.1
+

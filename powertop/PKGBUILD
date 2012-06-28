@@ -12,12 +12,18 @@ url="https://01.org/powertop/"
 license=('GPL2')
 depends=('libnl' 'ncurses')
 changelog=$pkgname.changelog
-source=(https://01.org/powertop/sites/default/files/downloads/$pkgname-$pkgver.tar.bz2)
-sha256sums=('7af51d320856b3446bcc314c9414385f3b05b9360f650883b0210cd3b12c5c1c')
+source=(https://01.org/powertop/sites/default/files/downloads/$pkgname-$pkgver.tar.bz2
+        factor-out-powertop_init-function.patch
+        catch-fstream-exceptions-in-lib-routines.patch)
+sha256sums=('7af51d320856b3446bcc314c9414385f3b05b9360f650883b0210cd3b12c5c1c'
+            '8e074f590df3e4ffc7c59f63865f51c0dd35788c2cc7f725cd45a0cd613e7eb9'
+            '8e660d9619df565ced4ab80cf07030f7ff90c6781a107cffe7c22f5d6e3fe2d1')
 
 build() {
   cd ${srcdir}/$pkgname-$pkgver
 
+  patch -Np1 -i ${srcdir}/factor-out-powertop_init-function.patch
+  patch -Np1 -i ${srcdir}/catch-fstream-exceptions-in-lib-routines.patch
   ./configure --prefix=/usr 
   make
 }

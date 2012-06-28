@@ -1,0 +1,199 @@
+From 9c66dbcf060c5fde8241a0bc900f776fd6393420 Mon Sep 17 00:00:00 2001
+From: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+Date: Thu, 17 May 2012 19:44:58 +0300
+Subject: [PATCH 1/2] factor out powertop_init() function
+
+Factor out powertop_init() function to perform basic initialization on
+powertop start up.
+
+Commit 057d6126eb6329c86b29a2e0219c0d0e49a84191 moved init after
+commandline options parsing. However, in some cases we need it before
+parsing, e.g. -- calibration.
+
+Reported-by: Lekensteyn <lekensteyn@gmail.com>
+Signed-off-by: Sergey Senozhatsky <sergey.senozhatsky@gmail.com>
+---
+ src/main.cpp | 110 +++++++++++++++++++++++++++++++----------------------------
+ 1 file changed, 58 insertions(+), 52 deletions(-)
+
+diff --git a/src/main.cpp b/src/main.cpp
+index 433fea6..b5720f0 100644
+--- a/src/main.cpp
++++ b/src/main.cpp
+@@ -280,15 +280,68 @@ static void checkroot() {
+ 	}
+ 	
+ }
+-int main(int argc, char **argv)
++
++static void powertop_init(void)
+ {
++	static char initialized = 0;
+ 	int ret;
++	struct statfs st_fs;
++
++	if (initialized)
++		return;
++
++	checkroot(); 
++	ret = system("/sbin/modprobe cpufreq_stats > /dev/null 2>&1");
++	ret = system("/sbin/modprobe msr > /dev/null 2>&1");
++	statfs("/sys/kernel/debug", &st_fs);
++
++	if (st_fs.f_type != (long) DEBUGFS_MAGIC) {
++		if (access("/bin/mount", X_OK) == 0) {
++			ret = system("/bin/mount -t debugfs debugfs /sys/kernel/debug > /dev/null 2>&1");
++		} else {
++			ret = system("mount -t debugfs debugfs /sys/kernel/debug > /dev/null 2>&1");
++		}
++		if (ret != 0) {
++			printf(_("Failed to mount debugfs!\n"));
++			printf(_("exiting...\n"));
++			exit(EXIT_FAILURE);
++		}
++	}
++
++	srand(time(NULL));
++
++	if (access("/var/cache/", W_OK) == 0)
++		mkdir("/var/cache/powertop", 0600);
++	else
++		mkdir("/data/local/powertop", 0600);
++
++	load_results("saved_results.powertop");
++	load_parameters("saved_parameters.powertop");
++
++	enumerate_cpus();
++	create_all_devices();
++	detect_power_meters();
++
++	register_parameter("base power", 100, 0.5);
++	register_parameter("cpu-wakeups", 39.5);
++	register_parameter("cpu-consumption", 1.56);
++	register_parameter("gpu-operations", 0.5576);
++	register_parameter("disk-operations-hard", 0.2);
++	register_parameter("disk-operations", 0.0);
++	register_parameter("xwakes", 0.1);
++
++	load_board_params();
++	initialized = 1;
++}
++
++
++int main(int argc, char **argv)
++{
+ 	int option_index;
+ 	int c;
+ 	bool wantreport = FALSE;
+ 	char filename[4096];
+ 	int  iterations = 1;
+-	struct statfs st_fs;
+ 
+ #ifndef DISABLE_TRYCATCH
+ 	set_new_handler(out_of_memory);
+@@ -322,6 +375,7 @@ int main(int argc, char **argv)
+ 				break;
+ 
+ 			case 'c':
++				powertop_init();
+ 				calibrate();
+ 				break;
+ 
+@@ -350,48 +404,8 @@ int main(int argc, char **argv)
+ 				break;
+ 		}
+ 	}
+-	
+-	checkroot(); 
+-	ret = system("/sbin/modprobe cpufreq_stats > /dev/null 2>&1");
+-	ret = system("/sbin/modprobe msr > /dev/null 2>&1");
+-
+-	statfs("/sys/kernel/debug", &st_fs);
+-	if (st_fs.f_type != (long) DEBUGFS_MAGIC) {
+-		if (access("/bin/mount", X_OK) == 0) {
+-			ret = system("/bin/mount -t debugfs debugfs /sys/kernel/debug > /dev/null 2>&1");
+-		} else {
+-			ret = system("mount -t debugfs debugfs /sys/kernel/debug > /dev/null 2>&1");
+-		}
+-		if (ret != 0) {
+-			printf(_("Failed to mount debugfs!\n"));
+-			printf(_("exiting...\n"));
+-			exit(EXIT_FAILURE);
+-		}
+-	}
+-
+-	srand(time(NULL));
+-
+-	if (access("/var/cache/", W_OK) == 0)
+-		mkdir("/var/cache/powertop", 0600);
+-	else
+-		mkdir("/data/local/powertop", 0600);
+ 
+-	load_results("saved_results.powertop");
+-	load_parameters("saved_parameters.powertop");
+-
+-	enumerate_cpus();
+-	create_all_devices();
+-	detect_power_meters();
+-
+-	register_parameter("base power", 100, 0.5);
+-	register_parameter("cpu-wakeups", 39.5);
+-	register_parameter("cpu-consumption", 1.56);
+-	register_parameter("gpu-operations", 0.5576);
+-	register_parameter("disk-operations-hard", 0.2);
+-	register_parameter("disk-operations", 0.0);
+-	register_parameter("xwakes", 0.1);
+-
+-	load_board_params();
++	powertop_init();
+ 
+ 	if (wantreport)
+ 		 report(time_out, iterations, filename);
+@@ -399,8 +413,6 @@ int main(int argc, char **argv)
+ 	if (debug_learning)
+ 		printf("Learning debugging enabled\n");
+ 
+-
+-
+ 	learn_parameters(250, 0);
+ 	save_parameters("saved_parameters.powertop");
+ 
+@@ -412,7 +424,6 @@ int main(int argc, char **argv)
+ 		exit(0);
+ 	}
+ 
+-
+ 	/* first one is short to not let the user wait too long */
+ 	init_display();
+ 	one_measurement(1);
+@@ -420,11 +431,9 @@ int main(int argc, char **argv)
+ 	tuning_update_display();
+ 	show_tab(0);
+ 
+-
+-
+ 	while (!leave_powertop) {
+-		one_measurement(time_out);
+ 		show_cur_tab();
++		one_measurement(time_out);
+ 		learn_parameters(15, 0);
+ 	}
+ #ifndef DISABLE_NCURSES
+@@ -432,7 +441,6 @@ int main(int argc, char **argv)
+ #endif
+ 	printf(_("Leaving PowerTOP\n"));
+ 
+-
+ 	end_process_data();
+ 	clear_process_data();
+ 	end_cpu_data();
+@@ -450,6 +458,4 @@ int main(int argc, char **argv)
+ 	clear_all_cpus();
+ 
+ 	return 0;
+-
+-
+ }
+-- 
+1.7.11.1
+
