@@ -1,0 +1,29 @@
+# $Id: PKGBUILD 70596 2012-05-12 11:08:44Z jlichtblau $
+# Maintainer: Jaroslav Lichtblau <dragonlord@aur.archlinux.org>
+# Contributor: Alexander Fehr <pizzapunk gmail com>
+# Contributor: Xilon <xilonmu@gmail.com>
+
+pkgname=powertop
+pkgver=2.0
+pkgrel=1
+pkgdesc="A tool to diagnose issues with power consumption and power management"
+arch=('i686' 'x86_64')
+url="https://01.org/powertop/"
+license=('GPL2')
+depends=('libnl' 'ncurses')
+changelog=$pkgname.changelog
+source=(https://01.org/powertop/sites/default/files/downloads/$pkgname-$pkgver.tar.bz2)
+sha256sums=('7af51d320856b3446bcc314c9414385f3b05b9360f650883b0210cd3b12c5c1c')
+
+build() {
+  cd ${srcdir}/$pkgname-$pkgver
+
+  ./configure --prefix=/usr 
+  make
+}
+
+package() {
+  cd ${srcdir}/$pkgname-$pkgver
+
+  make DESTDIR=${pkgdir} install
+}
