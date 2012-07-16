@@ -50,6 +50,9 @@ build() {
   # set extraversion to pkgrel
   sed -ri "s|^(EXTRAVERSION =).*|\1 -${pkgrel}|" Makefile
 
+  # don't run depmod on 'make install'. We'll do this ourselves in packaging
+  sed -i '2iexit 0' scripts/depmod.sh
+
   # get kernel version
   make prepare
 
@@ -92,8 +95,8 @@ package_linux-custom() {
   # get kernel version
   _kernver="$(make kernelrelease)"
 
-  mkdir -p "${pkgdir}"/{lib/modules,lib/firmware,boot}
-  make INSTALL_MOD_PATH="${pkgdir}" modules_install
+  mkdir -p "${pkgdir}"/{usr/lib/{modules,firmware},boot}
+  make INSTALL_MOD_PATH="${pkgdir}/usr" modules_install
   cp arch/$KARCH/boot/bzImage "${pkgdir}/boot/vmlinuz-${pkgname}"
 
   # add vmlinux
@@ -114,16 +117,19 @@ package_linux-custom() {
     -i "${pkgdir}/etc/mkinitcpio.d/${pkgname}.preset"
 
   # remove build and source links
-  rm -f "${pkgdir}"/lib/modules/${_kernver}/{source,build}
+  rm -f "${pkgdir}"/usr/lib/modules/${_kernver}/{source,build}
   # remove the firmware
-  rm -rf "${pkgdir}/lib/firmware"
+  rm -rf "${pkgdir}/usr/lib/firmware"
   # gzip -9 all modules to save 100MB of space
   find "${pkgdir}" -name '*.ko' -exec gzip -9 {} \;
   # make room for external modules
-  ln -s "../extramodules-${_basekernel}${_kernelname:--ARCH}" "${pkgdir}/lib/modules/${_kernver}/extramodules"
+  ln -s "../extramodules-${_basekernel}${_kernelname:--ARCH}" "${pkgdir}/usr/lib/modules/${_kernver}/extramodules"
   # add real version for building modules and running depmod from post_install/upgrade
-  mkdir -p "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname:--ARCH}"
-  echo "${_kernver}" > "${pkgdir}/lib/modules/extramodules-${_basekernel}${_kernelname:--ARCH}/version"
+  mkdir -p "${pkgdir}/usr/lib/modules/extramodules-${_basekernel}${_kernelname:--ARCH}"
+  echo "${_kernver}" > "${pkgdir}/usr/lib/modules/extramodules-${_basekernel}${_kernelname:--ARCH}/version"
+
+  # Now we call depmod...
+  depmod -b "$pkgdir" -F System.map "$_kernver"
 }
 
 package_linux-custom-headers() {
@@ -132,7 +138,7 @@ package_linux-custom-headers() {
   #conflicts=('kernel26-headers')
   #replaces=('kernel26-headers')
 
-  mkdir -p "${pkgdir}/lib/modules/${_kernver}"
+  mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}"
   mkdir -p "${pkgdir}/usr/src/linux-${_kernver}"
 
   cd "${srcdir}/linux-${_basekernel}"
@@ -140,8 +146,8 @@ package_linux-custom-headers() {
   find arch/${KARCH}/include include scripts -type f >> "${srcdir}/hdrfiles"
   find .config Module.symvers -type f >> "${srcdir}/hdrfiles"
   tar -c -f - -T "${srcdir}/hdrfiles" | (cd "${pkgdir}/usr/src/linux-${_kernver}"; tar -xf -)
-  cd "${pkgdir}/lib/modules/${_kernver}"
-  ln -sf ../../../usr/src/linux-${_kernver} build
+  cd "${pkgdir}/usr/lib/modules/${_kernver}"
+  ln -sf ../../../src/linux-${_kernver} build
 
   # fix permissions on scripts dir
   chmod og-w -R "${pkgdir}/usr/src/linux-${_kernver}/scripts"
