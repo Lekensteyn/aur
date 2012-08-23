@@ -1,0 +1,7 @@
+PACKAGE_NAME="uvcvideo"
+PACKAGE_VERSION="#MODULE_VERSION#"
+BUILT_MODULE_NAME="uvcvideo"
+DEST_MODULE_LOCATION[0]="/kernel/drivers/media/video/uvc"
+AUTOINSTALL="yes"
+# Guessed:
+OBSOLETE_BY="3.6"
