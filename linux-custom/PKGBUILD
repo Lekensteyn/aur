@@ -7,8 +7,8 @@ pkgbase=linux
 # pkgname=linux-custom       # Build kernel with a different name
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.5
-pkgver=${_basekernel}_rc7
+_basekernel=3.6
+pkgver=${_basekernel}_rc4
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -21,17 +21,13 @@ source=("linux-${_basekernel}.tar.gz"
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
         'change-default-console-loglevel.patch'
-	'jme-netpoll-support.patch'
-	'fix-uvc-hang.patch'
 	'i915-initialize-cadl-in-opregion.patch')
 md5sums=("$(md5sum "${source[0]}" | cut -d " " -f 1)"
          # custom config for faster builds
-         '6ff3cb708cf40b04b8cef4a72474ffb6'
+         'b0263c151baaea6db06da05cf97fd53e'
          # modified to skip fallback preset
          'bd73e0a2b3b80a220ab18a3c0c5fcc2a'
 	 '9d3c56a4b999c8bfbd4018089a62f662'
-	 'c7803932406dc4ddda9cecf1649e1476'
-	 'c87116ef085f458232f4887684fe205f'
 	 '04d69ad98c81b359dcba7b3e7f500546')
 
 build() {
@@ -41,12 +37,6 @@ build() {
   # remove this when a Kconfig knob is made available by upstream
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -Np1 -i "${srcdir}/change-default-console-loglevel.patch"
-
-  # Add netconsole support for jme ethernet driver
-  patch -Np1 -i "${srcdir}/jme-netpoll-support.patch"
-
-  # Fix weird hang with Pidgin
-  patch -Np1 -i "${srcdir}/fix-uvc-hang.patch"
 
   # Fix brightness hotkeys https://bugs.freedesktop.org/show_bug.cgi?id=45452
   patch -Np1 -i "${srcdir}/i915-initialize-cadl-in-opregion.patch"
