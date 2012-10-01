@@ -8,7 +8,7 @@ pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
 _basekernel=3.6
-pkgver=${_basekernel}_rc4
+pkgver=${_basekernel}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -24,7 +24,7 @@ source=("linux-${_basekernel}.tar.gz"
 	'i915-initialize-cadl-in-opregion.patch')
 md5sums=("$(md5sum "${source[0]}" | cut -d " " -f 1)"
          # custom config for faster builds
-         'b0263c151baaea6db06da05cf97fd53e'
+         'cd509268538a3c845fd343b591b839cf'
          # modified to skip fallback preset
          'bd73e0a2b3b80a220ab18a3c0c5fcc2a'
 	 '9d3c56a4b999c8bfbd4018089a62f662'
@@ -128,8 +128,10 @@ package_linux-custom() {
   mkdir -p "${pkgdir}/usr/lib/modules/extramodules-${_basekernel}${_kernelname:--ARCH}"
   echo "${_kernver}" > "${pkgdir}/usr/lib/modules/extramodules-${_basekernel}${_kernelname:--ARCH}/version"
 
+  mv "$pkgdir/usr/lib" "$pkgdir/lib"
   # Now we call depmod...
   depmod -b "$pkgdir" -F System.map "$_kernver"
+  mv "$pkgdir/lib" "$pkgdir/usr/lib"
 }
 
 package_linux-custom-headers() {
