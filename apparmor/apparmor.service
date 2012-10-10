@@ -1,0 +1,13 @@
+[Unit]
+Description=Linux application security framework - mandatory access control for programs
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/lib/systemd/scripts/apparmor start
+# Systemd sucks - no oneshot+reload support atm
+#ExecReload=/usr/lib/systemd/scripts/apparmor reload
+ExecStop=/usr/lib/systemd/scripts/apparmor stop
+
+[Install]
+WantedBy=multi-user.target

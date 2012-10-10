@@ -18,13 +18,21 @@ test -n "$BASH_VERSION" && [[ "$pkgver" =~ ^([0-9]*\.[0-9]*) ]] && bigver="${BAS
 test -n "$bigver" || bigver="$(echo ${pkgver} | cut -d . -f -2)"
 
 source=("http://launchpad.net/apparmor/${bigver}/${pkgver}/+download/apparmor-${pkgver}.tar.gz"
-        "apparmor.rc")
+        "apparmor.rc"
+	"apparmor.script"
+        "apparmor.service")
 md5sums=('eaf90c52992df3d205a753b2933595fe'
-         'baa14f0480f4e275014f32c9cc339ac7')
+         'baa14f0480f4e275014f32c9cc339ac7'
+         '0a91d818c99d0a1aa53f56bed861f880'
+         '0cc7c22d5646780d2d72316eff56aab8')
 sha256sums=('03e2e91fac17694635d25d7482e46db69320cd844590740073cf5fdfdd5379c6'
-            '9161f2b370d4e1a1e7765296e13895cdad7cffa8a97992b0003e40a44dfc3f4d')
+            '9161f2b370d4e1a1e7765296e13895cdad7cffa8a97992b0003e40a44dfc3f4d'
+            '494e06f92d9b322532465738803ef1d4f712bd5feb8252cd1c5784bdcbff710b'
+            'd596e96eaf6055ec8b3e2f4a50a9bd9964a84da747f34b128f32b903ebc7f537')
 sha512sums=('72ed09261ae62f7d82312affcba4e51e03697be42f3bd62e2e811526b0a4c0faf859ca075e0e4cd393dafca8f1e432a1d1c592b183b43736bb4d5d41d7303498'
-            '615f843855774bd4b3c25d6588f5f7daf744b24d4126190851ae6da816ec33d7b401a0ad1bba2d5660a48002c69bb2b49ec20f3cab8db8443d837e084605519b')
+            '615f843855774bd4b3c25d6588f5f7daf744b24d4126190851ae6da816ec33d7b401a0ad1bba2d5660a48002c69bb2b49ec20f3cab8db8443d837e084605519b'
+            'e1e99cc7887de1dd5a4133a3ba61f21f4036bc176203a7417181260a98f4e8d12f9e75dffaa01191a16ff03eaf7e793b19a99289b3ed8333f25c700f924773c9'
+            '105770ee2a544329c90f9eedd3e9f19fde3b923d9234a3f2ee0db7e1f47409325bc43612ed2259b0e021302d9675f6cc32ef6e3473bc13752867d680141cc097')
 
 #Configuration
 core_perl_dir='/usr/bin/core_perl'
@@ -103,6 +111,12 @@ package_apparmor-parser() {
   # old rc scripts - DEPRECATED, but currently work for unpatched kernel
   install -dm755 "${pkgdir}/etc/rc.d"
   install -m755 "${srcdir}/apparmor.rc" "${pkgdir}/etc/rc.d/apparmor"
+
+  # systemd startup scripts. Depends on patched kernel for profiles support
+  install -dm 755 "${pkgdir}/usr/lib/systemd/scripts"
+  install -m 755 "${srcdir}/apparmor.script" "${pkgdir}/usr/lib/systemd/scripts/apparmor"
+  install -dm 755 "${pkgdir}/usr/lib/systemd/system"
+  install -m 644 "${srcdir}/apparmor.service" "${pkgdir}/usr/lib/systemd/system"
 }
 
 package_apparmor-libapparmor() {
