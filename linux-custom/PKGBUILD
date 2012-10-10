@@ -21,14 +21,16 @@ source=("linux-${_basekernel}.tar.gz"
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
         'change-default-console-loglevel.patch'
-	'i915-initialize-cadl-in-opregion.patch')
+	'i915-initialize-cadl-in-opregion.patch'
+	'0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch')
 md5sums=("$(md5sum "${source[0]}" | cut -d " " -f 1)"
          # custom config for faster builds
          '5d5edb5204094f03c3ae68bdfdbd8d6b'
          # modified to skip fallback preset
          'bd73e0a2b3b80a220ab18a3c0c5fcc2a'
 	 '9d3c56a4b999c8bfbd4018089a62f662'
-	 '04d69ad98c81b359dcba7b3e7f500546')
+	 '04d69ad98c81b359dcba7b3e7f500546'
+	 '7c1864c1e53cf0d2e58dc0eb0d648ece')
 
 build() {
   cd "${srcdir}/linux-${_basekernel}"
@@ -40,6 +42,9 @@ build() {
 
   # Fix brightness hotkeys https://bugs.freedesktop.org/show_bug.cgi?id=45452
   patch -Np1 -i "${srcdir}/i915-initialize-cadl-in-opregion.patch"
+
+  # Add "profiles" support to AppArmor so it can see what rules are loaded
+  patch -Np1 -i "${srcdir}/0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch"
 
   cat "${srcdir}/config" > ./.config
 
