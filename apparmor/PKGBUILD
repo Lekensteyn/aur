@@ -38,11 +38,10 @@ build() {
   cd "${srcdir}/${pkgbase}-${pkgver}/parser"
   msg2 'Patching: apparmor-parser'
   # Patch (maybe we can avoid patching by ./configuring things better)
-  patch=Makefile; { rm "$patch"
-    sed -e 's/pdflatex/true/g' > "$patch" # just workaround until we'll get pdflatex package
-  } < "$patch"
+  # just workaround until we'll get pdflatex package
+  sed -e 's/pdflatex/true/g' -i Makefile
   echo '#!/bin/true' > tst/caching.sh # Can't pass this test with current kernel
-	make
+  make
 	
   # Perl AppArmor library does not support modern perl installation paths
   # Force us to unset $PERL_MM_OPT before working on the library.
@@ -57,31 +56,20 @@ build() {
   msg2 "Building: apparmor-utils"
   cd "${srcdir}/${pkgbase}-${pkgver}/utils"
   # Obvious python2 is obvious
-  patch=Makefile; { rm "$patch"
-    sed -e 's/python /python2 /g' > "$patch"
-  } < "$patch"
-  patch=vim/Makefile; { rm "$patch"
-    sed -e 's/python /python2 /g' > "$patch"
-  } < "$patch"
-  
+  sed -e 's/python /python2 /g' -i Makefile vim/Makefile
   make
 
   # We have to patch the logprof.conf file to make it compatible
   # with archlinux syslog-ng standard configuration. And, since
   # we use /usr/sbin for binary commands, we also must patch
   # logprof.conf so utils will use that path instead of the default.
-  patch=logprof.conf; { rm "$patch"
-     sed -e '/logfiles/ s/syslog /syslog.log /g' \
-         -e '/logfiles/ s/messages/messages.log/g' \
-         -e '/parser/ s# /sbin/# /usr/sbin/#g' > "$patch"
-  } < "$patch"
+  sed -e '/logfiles/ s/syslog /syslog.log /g' \
+      -e '/logfiles/ s/messages/messages.log/g' \
+      -e '/parser/ s# /sbin/# /usr/sbin/#g' -i logprof.conf
+  # TODO: make it work with journalctl from systemd?
 
   # We should also patch python based commands so they use python2
-  for util in `file aa-* | grep Python | cut -d ':' -f 1`; do
-    { rm "$util"
-      sed -e '1 s/python/python2/g' > "$util"
-    } < "$util"
-  done
+  sed -e '1s/python$/python2/' -i aa-*
 
   msg2 "Building: apparmor-profiles"
   cd "${srcdir}/${pkgbase}-${pkgver}/profiles"
@@ -93,7 +81,7 @@ build() {
 
   msg2 "Building: apparmor-vim"
   cd "${srcdir}/${pkgbase}-${pkgver}/utils/vim/"
-  make || make || true #FIXME: ??????
+  make
 }
 
 package_apparmor() {
