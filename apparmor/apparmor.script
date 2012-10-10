@@ -18,7 +18,7 @@
 # rc.apparmor by Steve Beattie
 #
 # /etc/rc.d/rc.apparmor
-APPARMOR_FUNCTIONS=/lib/apparmor/rc.apparmor.functions
+APPARMOR_FUNCTIONS=/usr/lib/apparmor/rc.apparmor.functions
 
 aa_action() {
 	STRING=$1
@@ -52,6 +52,10 @@ aa_log_skipped_msg() {
 	[ -n "$1" ] && echo -n $1
 	echo ": Skipped."
 }
+aa_log_action_start() { :;}
+aa_log_action_end() { :;}
+aa_log_daemon_msg() { echo "$1";}
+aa_log_end_msg() { :;}
 
 usage() {
     echo "Usage: $0 {start|stop|restart|try-restart|reload|force-reload|status|kill}"
