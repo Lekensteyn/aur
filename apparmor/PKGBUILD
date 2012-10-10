@@ -99,6 +99,10 @@ package_apparmor-parser() {
   make install DESTDIR=${pkgdir}
   mv ${pkgdir}/lib ${pkgdir}/usr/lib
   mv ${pkgdir}/sbin ${pkgdir}/usr/sbin
+
+  # old rc scripts - DEPRECATED, but currently work for unpatched kernel
+  install -dm755 "${pkgdir}/etc/rc.d"
+  install -m755 "${srcdir}/apparmor.rc" "${pkgdir}/etc/rc.d/apparmor"
 }
 
 package_apparmor-libapparmor() {
@@ -124,8 +128,6 @@ package_apparmor-utils() {
 
   cd "${srcdir}/${pkgbase}-${pkgver}/utils"
   make install DESTDIR=${pkgdir}
-  install -dm755 "${pkgdir}/etc/rc.d"
-  install -m755 "${srcdir}/apparmor.rc" "${pkgdir}/etc/rc.d/apparmor"
 }
 
 package_apparmor-profiles() {
