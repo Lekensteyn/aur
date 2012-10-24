@@ -7,7 +7,7 @@ pkgbase=linux
 # pkgname=linux-custom       # Build kernel with a different name
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.6.1
+_basekernel=3.6.3
 pkgver=${_basekernel}
 pkgrel=1
 arch=('i686' 'x86_64')
@@ -101,7 +101,7 @@ package_linux-custom() {
   _kernver="$(make kernelrelease)"
 
   mkdir -p "${pkgdir}"/{usr/lib/{modules,firmware},boot}
-  make INSTALL_MOD_PATH="${pkgdir}/usr" modules_install
+  make INSTALL_MOD_PATH="${pkgdir}/usr" INSTALL_MOD_STRIP=1 modules_install
   cp arch/$KARCH/boot/bzImage "${pkgdir}/boot/vmlinuz-${pkgname}"
 
   # add vmlinux
