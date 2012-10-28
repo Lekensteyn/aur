@@ -3,8 +3,6 @@
 # Maintainer: Thomas Baechler <thomas@archlinux.org>
 
 pkgbase=linux
-#pkgname=('linux' 'linux-headers' 'linux-docs') # Build stock -ARCH kernel
-# pkgname=linux-custom       # Build kernel with a different name
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
 _basekernel=3.6.3
@@ -87,9 +85,6 @@ package_linux-custom() {
   groups=('base')
   depends=('coreutils' 'linux-firmware' 'kmod' 'mkinitcpio>=0.7')
   optdepends=('crda: to set the correct wireless channels of your country')
-  #provides=('kernel26')
-  #conflicts=('kernel26')
-  #replaces=('kernel26')
   backup=("etc/mkinitcpio.d/${pkgname}.preset")
   install=${pkgname}.install
 
@@ -141,9 +136,6 @@ package_linux-custom() {
 
 package_linux-custom-headers() {
   pkgdesc="Header files and scripts for building modules for linux kernel"
-  #provides=('kernel26-headers')
-  #conflicts=('kernel26-headers')
-  #replaces=('kernel26-headers')
 
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}"
   mkdir -p "${pkgdir}/usr/src/linux-${_kernver}"
