@@ -49,6 +49,8 @@ build() {
   # just workaround until we'll get pdflatex package
   sed -e 's/pdflatex/true/g' -i Makefile
   echo '#!/bin/true' > tst/caching.sh # Can't pass this test with current kernel
+  # due to our installation in /usr/sbin
+  sed -e 's,=\(/sbin/apparmor_parser\),=/usr\1,' -i rc.apparmor.functions
   make
 	
   # Perl AppArmor library does not support modern perl installation paths
