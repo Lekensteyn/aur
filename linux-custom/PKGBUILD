@@ -23,7 +23,7 @@ source=("linux-${_basekernel}.tar.gz"
 	'0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch')
 md5sums=("$(md5sum "${source[0]}" | cut -d " " -f 1)"
          # custom config for faster builds
-         '4d8a7285c2d18c212aad2299a720efda'
+         '0f4119244ae2a9d543a3e94bf6c944e8'
          # modified to skip fallback preset
          'bd73e0a2b3b80a220ab18a3c0c5fcc2a'
 	 '9d3c56a4b999c8bfbd4018089a62f662'
