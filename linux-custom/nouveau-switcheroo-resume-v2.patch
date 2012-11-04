@@ -1,0 +1,91 @@
+From 33e4da3f1d2c6321829e93f913b37961f4c20541 Mon Sep 17 00:00:00 2001
+From: Peter Wu <lekensteyn@gmail.com>
+Date: Sun, 7 Oct 2012 12:12:00 +0200
+Subject: [PATCH] Disable device on resume if vga_switcheroo enabled
+
+On resume, pci_pm_resume() restores the PCI configuration space, clears the
+saved state and puts the device in D0 state because legacy PM is in use. This
+confuses vga_switcheroo which still thinks that the device is off. Therefore
+disable the device again on resume if the card should be off according to
+vga_switcheroo.
+
+v2: rework for 3.7. remove unused and empty nouveau_switcheroo_suspend
+function; use nouveau_dsm_power_state instead of nouveau_dsm_set_discrete_state
+directly; use D3cold instead of D3hot since that is what actually happens.
+
+Signed-off-by: Peter Wu <lekensteyn@gmail.com>
+---
+ drivers/gpu/drm/nouveau/nouveau_acpi.c |   18 ++++++++++++++++++
+ drivers/gpu/drm/nouveau/nouveau_acpi.h |    2 ++
+ drivers/gpu/drm/nouveau/nouveau_drm.c  |    5 ++++-
+ 3 files changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/drivers/gpu/drm/nouveau/nouveau_acpi.c b/drivers/gpu/drm/nouveau/nouveau_acpi.c
+index 48783e1..2d5e2f7 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_acpi.c
++++ b/drivers/gpu/drm/nouveau/nouveau_acpi.c
+@@ -326,6 +326,24 @@ void nouveau_switcheroo_optimus_dsm(void)
+ 		NOUVEAU_DSM_OPTIMUS_ARGS, &result);
+ }
+ 
++/* disables the card, it should only be called after resume and if switcheroo
++ * thinks that it is off */
++void nouveau_switcheroo_resume(struct pci_dev *pdev)
++{
++	/* prepare for disabling discrete GPU on Optimus DSM models */
++	nouveau_switcheroo_optimus_dsm();
++
++	/* because legacy PM is used, the state has been restored by
++	 * pci_restore_standard_config (called from pci_pm_resume) and
++	 * we need to save it again */
++	pci_save_state(pdev);
++	pci_disable_device(pdev);
++	pci_set_power_state(pdev, PCI_D3cold);
++
++	/* turn discrete GPU off on legacy nvidia DSM models */
++	nouveau_dsm_power_state(VGA_SWITCHEROO_DIS, VGA_SWITCHEROO_OFF);
++}
++
+ void nouveau_unregister_dsm_handler(void)
+ {
+ 	if (nouveau_dsm_priv.optimus_detected || nouveau_dsm_priv.dsm_detected)
+diff --git a/drivers/gpu/drm/nouveau/nouveau_acpi.h b/drivers/gpu/drm/nouveau/nouveau_acpi.h
+index 08af677..345d454 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_acpi.h
++++ b/drivers/gpu/drm/nouveau/nouveau_acpi.h
+@@ -7,6 +7,7 @@
+ void nouveau_register_dsm_handler(void);
+ void nouveau_unregister_dsm_handler(void);
+ void nouveau_switcheroo_optimus_dsm(void);
++void nouveau_switcheroo_resume(struct pci_dev *);
+ int nouveau_acpi_get_bios_chunk(uint8_t *bios, int offset, int len);
+ bool nouveau_acpi_rom_supported(struct pci_dev *pdev);
+ void *nouveau_acpi_edid(struct drm_device *, struct drm_connector *);
+@@ -14,6 +15,7 @@ void *nouveau_acpi_edid(struct drm_device *, struct drm_connector *);
+ static inline void nouveau_register_dsm_handler(void) {}
+ static inline void nouveau_unregister_dsm_handler(void) {}
+ static inline void nouveau_switcheroo_optimus_dsm(void) {}
++static inline void nouveau_switcheroo_resume(struct pci_dev *) {}
+ static inline bool nouveau_acpi_rom_supported(struct pci_dev *pdev) { return false; }
+ static inline int nouveau_acpi_get_bios_chunk(uint8_t *bios, int offset, int len) { return -EINVAL; }
+ static inline void *nouveau_acpi_edid(struct drm_device *dev, struct drm_connector *connector) { return NULL; }
+diff --git a/drivers/gpu/drm/nouveau/nouveau_drm.c b/drivers/gpu/drm/nouveau/nouveau_drm.c
+index ccae8c2..4c256ed 100644
+--- a/drivers/gpu/drm/nouveau/nouveau_drm.c
++++ b/drivers/gpu/drm/nouveau/nouveau_drm.c
+@@ -458,8 +458,11 @@ nouveau_drm_resume(struct pci_dev *pdev)
+ 	struct nouveau_cli *cli;
+ 	int ret;
+ 
+-	if (dev->switch_power_state == DRM_SWITCH_POWER_OFF)
++	/* device was OFF with vga_switcheroo before, this is a real resume */
++	if (dev->switch_power_state == DRM_SWITCH_POWER_OFF) {
++		nouveau_switcheroo_resume(pdev);
+ 		return 0;
++	}
+ 
+ 	NV_INFO(drm, "re-enabling device...\n");
+ 	pci_set_power_state(pdev, PCI_D0);
+-- 
+1.7.9.5
+

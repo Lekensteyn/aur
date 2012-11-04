@@ -5,8 +5,8 @@
 pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.6.3
-pkgver=${_basekernel}
+_basekernel=3.7
+pkgver=${_basekernel}rc3_206_gd416497
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -19,7 +19,7 @@ source=("linux-${_basekernel}.tar.gz"
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
         'change-default-console-loglevel.patch'
-	'i915-initialize-cadl-in-opregion.patch'
+        'nouveau-switcheroo-resume-v2.patch'
 	'0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch')
 md5sums=("$(md5sum "${source[0]}" | cut -d " " -f 1)"
          # custom config for faster builds
@@ -27,7 +27,7 @@ md5sums=("$(md5sum "${source[0]}" | cut -d " " -f 1)"
          # modified to skip fallback preset
          'bd73e0a2b3b80a220ab18a3c0c5fcc2a'
 	 '9d3c56a4b999c8bfbd4018089a62f662'
-	 '04d69ad98c81b359dcba7b3e7f500546'
+         '0509a95e843c2e3ba4e306536bb94880'
 	 '7c1864c1e53cf0d2e58dc0eb0d648ece')
 
 build() {
@@ -38,11 +38,11 @@ build() {
   # (relevant patch sent upstream: https://lkml.org/lkml/2011/7/26/227)
   patch -Np1 -i "${srcdir}/change-default-console-loglevel.patch"
 
-  # Fix brightness hotkeys https://bugs.freedesktop.org/show_bug.cgi?id=45452
-  patch -Np1 -i "${srcdir}/i915-initialize-cadl-in-opregion.patch"
-
   # Add "profiles" support to AppArmor so it can see what rules are loaded
   patch -Np1 -i "${srcdir}/0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch"
+
+  # Fix vgaswitcheroo resume for nouveau https://bugzilla.kernel.org/show_bug.cgi?id=44391
+  patch -Np1 -i "${srcdir}/nouveau-switcheroo-resume-v2.patch"
 
   cat "${srcdir}/config" > ./.config
 
