@@ -1,0 +1,63 @@
+# Maintainer: Sven Nobis <aur[at]sven[dot]to>
+pkgname=modelio-open
+pkgver=2.2
+pkgrel=1
+pkgdesc="Modelio is an Open Source UML tool developed by Modeliosoft. It supports the UML2 and BPMN2 standards."
+url="http://www.modelio.org/"
+arch=('x86_64' 'i686')
+license=('GPL3'
+	 'APACHE')
+depends=('glibc'
+	 'gcc-libs'
+	 'atk'
+	 'cairo'
+	 'gtk2'
+	 'glib2'
+	 'libwebkit'
+	 'libxtst')
+makedepends=()
+conflicts=()
+replaces=()
+backup=()
+#install='modelio.install'
+
+if [ "$CARCH" = "i686" ]; then
+	_pkg_arch_id='16'
+	_pkg_arch_extra=''
+	_pkg_md5='73d7ed7bce57223589043f932d66d695'
+elif [ "$CARCH" = "x86_64" ]; then
+	_pkg_arch_id='17'
+	_pkg_arch_extra='-64bits'
+	_pkg_md5='dbfa5738a4c3dc41564230337a9b122d'
+fi
+
+_src_desktop='modelio.desktop'
+_pkg="${_pkg_arch_id}-modelio-22-linux${_pkg_arch_extra}.html"
+source=("http://www.modelio.org/modelio-122/doc_download/${_pkg}"
+        "${_src_desktop}")
+md5sums=("${_pkg_md5}"
+         '62fd046e329c60e2e2b71b235345ccec')
+options=(!strip)
+
+#build() {
+#
+#}
+
+package() {
+  cd $pkgdir
+  mkdir -p "usr/share/$pkgname"
+  mkdir -p "usr/share/icons"
+  mkdir -p "usr/share/applications/"
+  mkdir -p "usr/bin"
+  
+  cd "${srcdir}/modelio/"
+  cp -r * "$pkgdir/usr/share/$pkgname"
+  
+  cd "$pkgdir/usr/share/icons/"
+  ln -s "../$pkgname/modelio.xpm"
+  cd "$pkgdir/usr/bin/"
+  ln -s "../share/$pkgname/modelio.sh" "modelio"
+  cp "${srcdir}/${_src_desktop}" "$pkgdir/usr/share/applications/"
+}
+
+# vim:set ts=2 sw=2 et:
