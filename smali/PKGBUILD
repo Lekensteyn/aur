@@ -1,21 +1,21 @@
 # Maintainer: sh0 <mee@sh0.org>
 # Contributor: Lekensteyn <lekensteyn@gmail.com>
 pkgname=smali
-pkgver=1.3.3
+pkgver=1.4.2
 pkgrel=1
 pkgdesc="An assembler/disassembler for Android's dex format"
 arch=(any)
 url="http://code.google.com/p/smali/"
 license=("BSD")
-depends=("java-environment" "bash")
+depends=("java-runtime" "bash")
 source=("http://smali.googlecode.com/files/baksmali"
         "http://smali.googlecode.com/files/baksmali-$pkgver.jar"
         "http://smali.googlecode.com/files/smali"
         "http://smali.googlecode.com/files/smali-$pkgver.jar")
 sha1sums=('f7c1899e133d1f826da1b169ec62fd47a6b3629e'
-          '9103c7341838da943037870edee3f5ce53b302b5'
+          'bf0ddc48e8df9002fa655b0e18d74ec4033d0749'
           '29d9df50ab18a327153a91e0018145008771c040'
-          '7c4b0c6dc1dddd14423bbc7eed21440d4b18d309')
+          'ed9a9fea56289b7a04fefc0c70f1ac1febfcc87c')
 
 package() {
   install -d -m755 "$pkgdir/usr/bin"
