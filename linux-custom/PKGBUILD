@@ -5,9 +5,9 @@
 pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.7.1
-pkgver=${_basekernel}
-pkgrel=2
+_basekernel=3.8
+pkgver=${_basekernel}rc6
+pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
 license=('GPL2')
@@ -20,7 +20,7 @@ source=("linux-${_basekernel}.tar.gz"
         "${pkgname}.preset"
         'change-default-console-loglevel.patch'
         'nouveau-switcheroo-resume-v2.patch'
-	'bzko-51661.patch'
+	'Do-not-power-manage-devices-in-unknown-initial-sta.patch'
 	'0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch')
 md5sums=("$(md5sum "${source[0]}" | cut -d " " -f 1)"
          # custom config for faster builds
@@ -29,7 +29,7 @@ md5sums=("$(md5sum "${source[0]}" | cut -d " " -f 1)"
          'bd73e0a2b3b80a220ab18a3c0c5fcc2a'
 	 '9d3c56a4b999c8bfbd4018089a62f662'
          '0509a95e843c2e3ba4e306536bb94880'
-	 'dc56bec759ea4da58ea11e025524f560'
+	 'e3353e3d1363e3e3838a3963d2d6c22b'
 	 '7c1864c1e53cf0d2e58dc0eb0d648ece')
 
 build() {
@@ -44,10 +44,11 @@ build() {
   patch -Np1 -i "${srcdir}/0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch"
 
   # Fix vgaswitcheroo resume for nouveau https://bugzilla.kernel.org/show_bug.cgi?id=44391
-  patch -Np1 -i "${srcdir}/nouveau-switcheroo-resume-v2.patch"
+  #patch -Np1 -i "${srcdir}/nouveau-switcheroo-resume-v2.patch"
 
-  # hopefully solves a resume hang I experience v3.7-rc8-13-gdf2fc24 -> v3.7.1
-  patch -Np1 -i "${srcdir}/bzko-51661.patch"
+  # Possible fix for unknown initial power state which broke bbswitch since
+  # 3.8-rc1
+  patch -Np1 -i "${srcdir}/Do-not-power-manage-devices-in-unknown-initial-sta.patch"
 
   cat "${srcdir}/config" > ./.config
 
