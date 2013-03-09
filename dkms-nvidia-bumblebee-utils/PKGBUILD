@@ -36,14 +36,9 @@ fi
 source[1]="dkms.conf"
 md5sums[1]='addb093f1c42ca0f54760a5551eebae3'
 
-#source[2]="linux-3.7.patch"
-#md5sums[2]='e10a5daf9f53015427d8bc493cdf3928'
-
 build() {
 	cd $srcdir
 	sh ${_pkg}.run --extract-only
-	cd "${_pkg}/kernel"
-	#patch -Np3 -i "${srcdir}"/linux-3.7.patch
 }
 
 create_links() {
