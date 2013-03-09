@@ -5,8 +5,8 @@
 pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.8
-pkgver=${_basekernel}rc6
+_basekernel=3.8.2
+pkgver=${_basekernel}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -48,7 +48,7 @@ build() {
 
   # Possible fix for unknown initial power state which broke bbswitch since
   # 3.8-rc1
-  patch -Np1 -i "${srcdir}/Do-not-power-manage-devices-in-unknown-initial-sta.patch"
+  #patch -Np1 -i "${srcdir}/Do-not-power-manage-devices-in-unknown-initial-sta.patch"
 
   cat "${srcdir}/config" > ./.config
 
