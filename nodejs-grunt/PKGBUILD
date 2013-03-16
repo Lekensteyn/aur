@@ -8,7 +8,7 @@
 _npmname=grunt
 pkgname=nodejs-grunt # All lowercase
 pkgver=0.4.1
-pkgrel=1
+pkgrel=2
 pkgdesc="The JavaScript Task Runner"
 arch=(any)
 url="http://gruntjs.com/"
@@ -23,6 +23,10 @@ build() {
   local _npmdir="$pkgdir/usr/lib/node_modules/"
   mkdir -p $_npmdir
   cd $_npmdir
-  npm install -g --prefix "$pkgdir/usr" $_npmname@$pkgver
+  npm install --user root -g --prefix "$pkgdir/usr" $_npmname@$pkgver
+}
+package() {
+  cd $srcdir
+  install -D package/LICENSE-MIT "$pkgdir/usr/share/licenses/$pkgname/LICENSE-MIT"
 }
 # vim:set ts=2 sw=2 et:
