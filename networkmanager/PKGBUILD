@@ -15,8 +15,8 @@ arch=('i686' 'x86_64')
 license=('GPL')
 url="http://www.gnome.org/projects/$_pkgname/"
 depends=(dbus-glib iproute2 libnl nss polkit udev wpa_supplicant dhcp-client
-         libsoup systemd modemmanager)
-makedepends=(intltool dhcpcd dhclient iptables gobject-introspection gtk-doc)
+         libsoup systemd)
+makedepends=(intltool dhclient iptables gobject-introspection gtk-doc)
 optdepends=('dhclient: DHCPv6 support'
             'iptables: Connection sharing'
             'dnsmasq: Connection sharing'
@@ -47,13 +47,12 @@ build() {
     --libexecdir=/usr/lib/networkmanager \
     --with-crypto=nss \
     --with-dhclient=/usr/sbin/dhclient \
-    --with-dhcpcd=/usr/sbin/dhcpcd \
     --with-iptables=/usr/sbin/iptables \
     --with-systemdsystemunitdir=/usr/lib/systemd/system \
     --with-udev-dir=/usr/lib/udev \
     --with-resolvconf=/usr/sbin/resolvconf \
     --with-session-tracking=systemd \
-    --with-modem-manager-1 \
+    --without-modem-manager-1 \
     --disable-static \
     --enable-more-warnings=no \
     --disable-wimax \
