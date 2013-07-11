@@ -1,0 +1,11 @@
+#!/bin/bash
+set -e
+suf=testing
+T=/tmp/linux-$suf
+mkdir "$T"
+cp -var ~/projects/aur/linux-custom/* "$T/"
+cd "$T"
+for ext in install preset; do
+	mv linux-custom.$ext "linux-$suf.$ext"
+done
+sed s/-custom/-$suf/g -i PKGBUILD
