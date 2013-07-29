@@ -5,8 +5,8 @@
 pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.10
-pkgver=${_basekernel}
+_basekernel=3.11
+pkgver=${_basekernel}rc3
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
