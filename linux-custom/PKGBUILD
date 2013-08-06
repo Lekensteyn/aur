@@ -1,4 +1,3 @@
-# $Id: PKGBUILD 130991 2011-07-09 12:23:51Z thomas $
 # Maintainer: Tobias Powalowski <tpowa@archlinux.org>
 # Maintainer: Thomas Baechler <thomas@archlinux.org>
 
@@ -6,7 +5,7 @@ pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
 _basekernel=3.11
-pkgver=${_basekernel}rc3
+pkgver=${_basekernel}rc4
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
