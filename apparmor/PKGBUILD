@@ -1,38 +1,32 @@
 # Mantainer: Gianni Vialetto <gianni at rootcube dot net>
+# Mantainer: Paul N. Maxwell <msg dot maxwel at gmail dot com>
 # Contributor: Thomas Mudrunka <harvie@@email..cz>
 # Contributor: Max Fierke <max@maxfierke.com>
 
 pkgbase=apparmor
 pkgname=apparmor
 true && pkgname=($pkgbase apparmor-parser apparmor-libapparmor apparmor-utils apparmor-profiles apparmor-pam apparmor-vim)
-pkgver=2.8.0
+pkgver=2.8.1
 pkgrel=2
 arch=('i686' 'x86_64')
 license=('GPL')
 url='http://wiki.apparmor.net/index.php/Main_Page'
 groups=('apparmor')
-makedepends=('swig' 'perl' 'python2' 'ruby' 'perl-locale-gettext' 'perl-rpc-xml' 'wxgtk' 'audit')
+makedepends=('flex' 'swig' 'perl' 'python2' 'ruby' 'perl-locale-gettext' 'perl-rpc-xml' 'wxgtk' 'audit')
 
 
 test -n "$BASH_VERSION" && [[ "$pkgver" =~ ^([0-9]*\.[0-9]*) ]] && bigver="${BASH_REMATCH[1]}"
 test -n "$bigver" || bigver="$(echo ${pkgver} | cut -d . -f -2)"
 
 source=("http://launchpad.net/apparmor/${bigver}/${pkgver}/+download/apparmor-${pkgver}.tar.gz"
-        "apparmor.rc"
-	"apparmor.script"
+        "apparmor_load.sh"
+        "apparmor_unload.sh"
         "apparmor.service")
-md5sums=('eaf90c52992df3d205a753b2933595fe'
-         'baa14f0480f4e275014f32c9cc339ac7'
-         '0a91d818c99d0a1aa53f56bed861f880'
-         '0cc7c22d5646780d2d72316eff56aab8')
-sha256sums=('03e2e91fac17694635d25d7482e46db69320cd844590740073cf5fdfdd5379c6'
-            '9161f2b370d4e1a1e7765296e13895cdad7cffa8a97992b0003e40a44dfc3f4d'
-            '494e06f92d9b322532465738803ef1d4f712bd5feb8252cd1c5784bdcbff710b'
-            'd596e96eaf6055ec8b3e2f4a50a9bd9964a84da747f34b128f32b903ebc7f537')
-sha512sums=('72ed09261ae62f7d82312affcba4e51e03697be42f3bd62e2e811526b0a4c0faf859ca075e0e4cd393dafca8f1e432a1d1c592b183b43736bb4d5d41d7303498'
-            '615f843855774bd4b3c25d6588f5f7daf744b24d4126190851ae6da816ec33d7b401a0ad1bba2d5660a48002c69bb2b49ec20f3cab8db8443d837e084605519b'
-            'e1e99cc7887de1dd5a4133a3ba61f21f4036bc176203a7417181260a98f4e8d12f9e75dffaa01191a16ff03eaf7e793b19a99289b3ed8333f25c700f924773c9'
-            '105770ee2a544329c90f9eedd3e9f19fde3b923d9234a3f2ee0db7e1f47409325bc43612ed2259b0e021302d9675f6cc32ef6e3473bc13752867d680141cc097')
+
+md5sums=('83ae6c8190e91cf2146da8942951d305'
+         'a657bc9e2670509e489615e63ba718c9'
+         'f083aa1926430bc48eb332f1b77fca08'
+         'a5c217ad417d08c2d2c2173bb8cd1842')
 
 #Configuration
 core_perl_dir='/usr/bin/core_perl'
@@ -46,12 +40,11 @@ build() {
   cd "${srcdir}/${pkgbase}-${pkgver}/parser"
   msg2 'Patching: apparmor-parser'
   # Patch (maybe we can avoid patching by ./configuring things better)
-  # just workaround until we'll get pdflatex package
-  sed -e 's/pdflatex/true/g' -i Makefile
+  patch=Makefile; { rm "$patch"
+    sed -e 's/pdflatex/true/g' > "$patch" # just workaround until we'll get pdflatex package
+  } < "$patch"
   echo '#!/bin/true' > tst/caching.sh # Can't pass this test with current kernel
-  # due to our installation in /usr/sbin
-  sed -e 's,=\(/sbin/apparmor_parser\),=/usr\1,' -i rc.apparmor.functions
-  make
+	make
 	
   # Perl AppArmor library does not support modern perl installation paths
   # Force us to unset $PERL_MM_OPT before working on the library.
@@ -60,26 +53,37 @@ build() {
   msg2 "Building: apparmor-libapparmor"
   cd "${srcdir}/${pkgbase}-${pkgver}/libraries/libapparmor"
   ./autogen.sh
-  ./configure --prefix=/usr --with-perl --with-python --with-ruby
+  ./configure --prefix=/usr --sbindir=/usr/bin --with-perl --with-python --with-profileeditor
   make
 
   msg2 "Building: apparmor-utils"
   cd "${srcdir}/${pkgbase}-${pkgver}/utils"
   # Obvious python2 is obvious
-  sed -e 's/python /python2 /g' -i Makefile vim/Makefile
+  patch=Makefile; { rm "$patch"
+    sed -e 's/python /python2 /g' > "$patch"
+  } < "$patch"
+  patch=vim/Makefile; { rm "$patch"
+    sed -e 's/python /python2 /g' > "$patch"
+  } < "$patch"
+  
   make
 
   # We have to patch the logprof.conf file to make it compatible
   # with archlinux syslog-ng standard configuration. And, since
-  # we use /usr/sbin for binary commands, we also must patch
+  # we use /usr/bin for binary commands, we also must patch
   # logprof.conf so utils will use that path instead of the default.
-  sed -e '/logfiles/ s/syslog /syslog.log /g' \
-      -e '/logfiles/ s/messages/messages.log/g' \
-      -e '/parser/ s# /sbin/# /usr/sbin/#g' -i logprof.conf
-  # TODO: make it work with journalctl from systemd?
+  patch=logprof.conf; { rm "$patch"
+     sed -e '/logfiles/ s/syslog /syslog.log /g' \
+         -e '/logfiles/ s/messages/messages.log/g' \
+         -e '/parser/ s# /sbin/# /usr/bin/#g' > "$patch"
+  } < "$patch"
 
   # We should also patch python based commands so they use python2
-  sed -e '1s/python$/python2/' -i aa-*
+  for util in `file aa-* | grep Python | cut -d ':' -f 1`; do
+    { rm "$util"
+      sed -e '1 s/python/python2/g' > "$util"
+    } < "$util"
+  done
 
   msg2 "Building: apparmor-profiles"
   cd "${srcdir}/${pkgbase}-${pkgver}/profiles"
@@ -91,7 +95,7 @@ build() {
 
   msg2 "Building: apparmor-vim"
   cd "${srcdir}/${pkgbase}-${pkgver}/utils/vim/"
-  make
+  make || make || true #FIXME: ??????
 }
 
 package_apparmor() {
@@ -108,17 +112,7 @@ package_apparmor-parser() {
   cd "${srcdir}/${pkgbase}-${pkgver}/parser"
   make install DESTDIR=${pkgdir}
   mv ${pkgdir}/lib ${pkgdir}/usr/lib
-  mv ${pkgdir}/sbin ${pkgdir}/usr/sbin
-
-  # old rc scripts - DEPRECATED, but currently work for unpatched kernel
-  install -dm755 "${pkgdir}/etc/rc.d"
-  install -m755 "${srcdir}/apparmor.rc" "${pkgdir}/etc/rc.d/apparmor"
-
-  # systemd startup scripts. Depends on patched kernel for profiles support
-  install -dm 755 "${pkgdir}/usr/lib/systemd/scripts"
-  install -m 755 "${srcdir}/apparmor.script" "${pkgdir}/usr/lib/systemd/scripts/apparmor"
-  install -dm 755 "${pkgdir}/usr/lib/systemd/system"
-  install -m 644 "${srcdir}/apparmor.service" "${pkgdir}/usr/lib/systemd/system"
+  mv ${pkgdir}/sbin ${pkgdir}/usr/bin
 }
 
 package_apparmor-libapparmor() {
@@ -131,7 +125,7 @@ package_apparmor-libapparmor() {
   make install DESTDIR=${pkgdir}
   #FIXME: this file should install automatically:
   install -m644 "swig/perl/LibAppArmor.pm" "${pkgdir}/usr/lib/perl5/vendor_perl/"
-  mv ${pkgdir}/usr/lib/ruby/site_ruby ${pkgdir}/usr/lib/ruby/vendor_ruby
+  #mv ${pkgdir}/usr/lib/ruby/site_ruby ${pkgdir}/usr/lib/ruby/vendor_ruby
 }
 
 package_apparmor-utils() {
@@ -143,12 +137,24 @@ package_apparmor-utils() {
   install='apparmor-utils.install'
 
   cd "${srcdir}/${pkgbase}-${pkgver}/utils"
-  make install DESTDIR=${pkgdir}
+  make install DESTDIR=${pkgdir} BINDIR=${pkgdir}/usr/bin
+  install -m755 "${srcdir}/apparmor_load.sh" "${pkgdir}/usr/bin/apparmor_load.sh"
+  install -m755 "${srcdir}/apparmor_unload.sh" "${pkgdir}/usr/bin/apparmor_unload.sh"
+  install -Dm644 "${srcdir}/apparmor.service" "${pkgdir}/usr/lib/systemd/system/apparmor.service"
 }
 
 package_apparmor-profiles() {
   pkgdesc='AppArmor sample pre-made profiles'
   arch=('any')
+
+  # /usr merge
+  cd "${srcdir}/${pkgbase}-${pkgver}/profiles"
+  for i in `find . -name "*sbin*"`; do sed -i -e 's@sbin@bin@g' ${i} && mv ${i} ${i/sbin/bin}; done
+
+  # backup /etc/apparmor.d/* so using logprof is safe
+  cd "${srcdir}/${pkgbase}-${pkgver}/profiles/apparmor.d"
+  declare -a _profiles=(`find -type f|sed 's@./@etc/apparmor.d/@'`)
+  backup=(`echo ${_profiles[@]}`)
 
   cd "${srcdir}/${pkgbase}-${pkgver}/profiles"
   make install DESTDIR=${pkgdir}

@@ -1,13 +1,11 @@
 [Unit]
-Description=Linux application security framework - mandatory access control for programs
+Description=AppArmor profiles
 
 [Service]
 Type=oneshot
+ExecStart=/usr/bin/apparmor_load.sh
+ExecStop=/usr/bin/apparmor_unload.sh
 RemainAfterExit=yes
-ExecStart=/usr/lib/systemd/scripts/apparmor start
-# Systemd sucks - no oneshot+reload support atm
-#ExecReload=/usr/lib/systemd/scripts/apparmor reload
-ExecStop=/usr/lib/systemd/scripts/apparmor stop
 
 [Install]
-WantedBy=multi-user.target
+WantedBy=basic.target
