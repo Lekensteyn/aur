@@ -5,7 +5,7 @@ pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
 _basekernel=3.11
-pkgver=${_basekernel}rc6
+pkgver=${_basekernel}rc7_12_g7b4d06a
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -19,7 +19,6 @@ source=("linux-${_basekernel}.tar.gz"
         "${pkgname}.preset"
         'change-default-console-loglevel.patch'
         'nouveau-switcheroo-resume-v2.patch'
-	'revert-cube-logitech.patch'
 	'hid-hidraw-correctly-deallocate-memory-on-device-disconnect.patch'
 	'0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch')
 md5sums=(SKIP
@@ -29,7 +28,6 @@ md5sums=(SKIP
          'bd73e0a2b3b80a220ab18a3c0c5fcc2a'
 	 '9d3c56a4b999c8bfbd4018089a62f662'
          '0509a95e843c2e3ba4e306536bb94880'
-	 'a56977e65da029ec0c2de311cb5e9f85'
 	 '714f60be8ea559aee6ea536e38df5e67'
 	 '7c1864c1e53cf0d2e58dc0eb0d648ece')
 
@@ -49,10 +47,6 @@ build() {
 
   # Prevent memory corruption when playing with UPower and hidraw
   patch -Np1 -i "${srcdir}/hid-hidraw-correctly-deallocate-memory-on-device-disconnect.patch"
-
-  # Remove workaround for Logitech Unifying receiver, I need to find the related
-  # XHCI bug.
-  patch -Np1 -i "${srcdir}/revert-cube-logitech.patch"
 
   cat "${srcdir}/config" > ./.config
 
