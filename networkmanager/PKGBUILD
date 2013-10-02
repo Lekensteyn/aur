@@ -8,8 +8,8 @@
 
 pkgname=networkmanager
 _pkgname=NetworkManager
-pkgver=0.9.8.2
-pkgrel=1
+pkgver=0.9.8.6
+pkgrel=1.1
 pkgdesc="Network Management daemon"
 arch=('i686' 'x86_64')
 license=('GPL')
@@ -19,7 +19,7 @@ depends=(dbus-glib iproute2 libnl nss polkit udev wpa_supplicant dhcp-client
 makedepends=(intltool dhclient iptables gobject-introspection gtk-doc)
 optdepends=('dhclient: DHCPv6 support'
             'dnsmasq: Connection sharing'
-            'bluez4: Bluetooth support'
+            'bluez: Bluetooth support'
             'openresolv: resolvconf support'
             'ppp: Dialup connection support')
 options=('!libtool')
@@ -27,7 +27,7 @@ backup=('etc/NetworkManager/NetworkManager.conf')
 install=networkmanager.install
 source=(http://ftp.gnome.org/pub/gnome/sources/$_pkgname/${pkgver:0:3}/$_pkgname-$pkgver.tar.xz
         NetworkManager.conf disable_set_hostname.patch)
-sha256sums=('5c0b2f71b2f61e0dfbe95cebad83001758db252d5cdf5b6f7ceebac9c6bd7ead'
+sha256sums=('2289800de66fd7f8c141e029923beb39f43952e442b3cb864e3bf73b26c0c369'
             '44b048804c7c0b8b3b0c29b8632b6ad613c397d0a1635ec918e10c0fbcdadf21'
             '25056837ea92e559f09563ed817e3e0cd9333be861b8914e45f62ceaae2e0460')
 
