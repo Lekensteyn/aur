@@ -4,8 +4,8 @@
 pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.11
-pkgver=${_basekernel}rc7_12_g7b4d06a
+_basekernel=3.12
+pkgver=${_basekernel}rc4_6_g162bdaf
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -18,8 +18,6 @@ source=("linux-${_basekernel}.tar.gz"
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
         'change-default-console-loglevel.patch'
-        'nouveau-switcheroo-resume-v2.patch'
-	'hid-hidraw-correctly-deallocate-memory-on-device-disconnect.patch'
 	'0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch')
 md5sums=(SKIP
          # custom config for faster builds
@@ -27,8 +25,6 @@ md5sums=(SKIP
          # modified to skip fallback preset
          'bd73e0a2b3b80a220ab18a3c0c5fcc2a'
 	 '9d3c56a4b999c8bfbd4018089a62f662'
-         '0509a95e843c2e3ba4e306536bb94880'
-	 '714f60be8ea559aee6ea536e38df5e67'
 	 '7c1864c1e53cf0d2e58dc0eb0d648ece')
 
 build() {
@@ -41,12 +37,6 @@ build() {
 
   # Add "profiles" support to AppArmor so it can see what rules are loaded
   patch -Np1 -i "${srcdir}/0001-UBUNTU-SAUCE-AppArmor-Add-profile-introspection-file.patch"
-
-  # Fix vgaswitcheroo resume for nouveau https://bugzilla.kernel.org/show_bug.cgi?id=44391
-  #patch -Np1 -i "${srcdir}/nouveau-switcheroo-resume-v2.patch"
-
-  # Prevent memory corruption when playing with UPower and hidraw
-  patch -Np1 -i "${srcdir}/hid-hidraw-correctly-deallocate-memory-on-device-disconnect.patch"
 
   cat "${srcdir}/config" > ./.config
 
