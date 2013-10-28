@@ -3,9 +3,9 @@
 # Contributor: Florian Pritz <bluewind at jabber dot ccc dot de>
 pkgname=('wireshark-cli' 'wireshark-gtk')
 pkgbase=wireshark
-pkgver=1.10.2.r52144plusTLS
+pkgver=1.10.2.r52915plusBug9309Fix
 # tarball is named as such
-_pkgver=1.11.0
+_pkgver=1.11.1
 pkgrel=1
 arch=('i686' 'x86_64')
 license=('GPL2')
