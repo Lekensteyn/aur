@@ -1,6 +1,6 @@
 #!/bin/bash
 set -e
-umask 2
+umask 22
 
 KSRC=~/Linux-src/linux
 
@@ -10,16 +10,14 @@ mkdir "$T"
 cp -var ~/projects/aur/linux-custom/* "$T/"
 
 cd "$KSRC"
-tag=$(git describe --abbrev=0 -- "$@")	# v3.7-rc3
-tagrev=$(git describe -- "$@")		# v3.7-rc3-1-gxxxx
-basekernel=${tag#v}		# 3.7-rc3
-basekernel=${basekernel%%-*}	# 3.7
-pkgver=${tagrev#v}		# 3.7-rc3-1-gxxxx
-if [[ $pkgver == $basekernel-* ]]; then
-	pkgver=${pkgver#$basekernel-}	# rc3-1-gxxxx
-	pkgver=${pkgver//-/_}		# rc3_1_gxxxx
+tag=$(git describe --abbrev=0 -- "$@")	# v3.7-rc3		v3.12
+tagrev=$(git describe -- "$@")		# v3.7-rc3-1-gxxxx	v3.12-1-gxxxx
+basekernel=${tag#v}			# 3.7-rc3		3.12
+if [[ $tag != $tagrev ]]; then
+	# v3.7-rc3-1-gxxxx -> -00001-gxxxx
+	scmversion=$(echo "$tagrev" | awk -F- '{printf("-%05d-%s", $(NF-1),$(NF))}')
 else
-	pkgver=
+	scmversion=
 fi
 
 git archive --prefix="linux-$basekernel/" --format=tar.gz \
@@ -28,4 +26,5 @@ git archive --prefix="linux-$basekernel/" --format=tar.gz \
 cd "$T"
 sed -i PKGBUILD \
 	-e "s/^_basekernel=.*/_basekernel=$basekernel/" \
-	-e "s/^pkgver=.*/pkgver=\${_basekernel}$pkgver/"
+	-e "s/^_scmversion=.*/_scmversion=$scmversion/"
+#	-e "s/^pkgver=.*/pkgver=\${_basekernel}$pkgver/"
