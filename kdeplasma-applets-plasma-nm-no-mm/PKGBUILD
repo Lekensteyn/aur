@@ -2,10 +2,11 @@
 # Maintainer: Andrea Scarpino <andrea@archlinux.org>
 # Contributor: Antonio Rojas < nqn1976 @ gmail.com >
 
-pkgname=kdeplasma-applets-plasma-nm
+_pkgname=kdeplasma-applets-plasma-nm
+pkgname=${_pkgname}-no-mm
 pkgver=0.9.3.2
-pkgrel=1
-pkgdesc="Plasma applet written in QML for managing network connections"
+pkgrel=1.1
+pkgdesc="Plasma applet written in QML for managing network connections (without ModemManager support)"
 arch=('i686' 'x86_64')
 url="https://projects.kde.org/projects/playground/network/plasma-nm"
 license=('GPL')
@@ -13,7 +14,8 @@ depends=('kdebase-workspace' 'libnm-qt')
 makedepends=('cmake' 'automoc4' 'openconnect' 'mobile-broadband-provider-info')
 optdepends=('mobile-broadband-provider-info: Database of mobile broadband service providers'
             'openconnect: Cisco AnyConnect VPN plugin')
-conflicts=('kdeplasma-applets-networkmanagement')
+conflicts=("$_pkgname" "kdeplasma-applets-networkmanagement")
+provides=("$_pkgname")
 source=("http://download.kde.org/unstable/plasma-nm/plasma-nm-${pkgver}.tar.xz")
 md5sums=('67dde011a859f2d72633cf3af5c9f847')
 
@@ -24,6 +26,7 @@ prepare() {
 build() {
   cd build
   cmake ../plasma-nm-${pkgver} \
+    -DDISABLE_MODEMMANAGER_SUPPORT=1 \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=Release
   make
