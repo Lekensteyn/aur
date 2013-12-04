@@ -11,9 +11,7 @@ arch=('i686' 'x86_64')
 url="https://projects.kde.org/projects/playground/network/plasma-nm"
 license=('GPL')
 depends=('kdebase-workspace' 'libnm-qt')
-makedepends=('cmake' 'automoc4' 'openconnect' 'mobile-broadband-provider-info')
-optdepends=('mobile-broadband-provider-info: Database of mobile broadband service providers'
-            'openconnect: Cisco AnyConnect VPN plugin')
+makedepends=('cmake' 'automoc4')
 conflicts=("$_pkgname" "kdeplasma-applets-networkmanagement")
 provides=("$_pkgname")
 source=("http://download.kde.org/unstable/plasma-nm/plasma-nm-${pkgver}.tar.xz")
@@ -27,6 +25,8 @@ build() {
   cd build
   cmake ../plasma-nm-${pkgver} \
     -DDISABLE_MODEMMANAGER_SUPPORT=1 \
+    -DWITH_MobileBroadbandProviderInfo=0 \
+    -DWITH_OpenConnect=0 \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=Release
   make
