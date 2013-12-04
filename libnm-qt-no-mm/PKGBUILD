@@ -1,16 +1,19 @@
 # $Id: PKGBUILD 200037 2013-11-21 23:30:26Z andrea $
 # Maintainer: Andrea Scarpino <andrea@archlinux.org>
 
-pkgname=libnm-qt
+_pkgname=libnm-qt
+pkgname=${_pkgname}-no-mm
 pkgver=0.9.8.0
-pkgrel=1
-pkgdesc='Qt-only wrapper for NetworkManager DBus API'
+pkgrel=1.1
+pkgdesc='Qt-only wrapper for NetworkManager DBus API (without ModemManager dependency)'
 arch=('i686' 'x86_64')
 url='https://projects.kde.org/projects/extragear/libs/libnm-qt'
 license=('LGPL')
-depends=('libmm-qt' 'networkmanager')
+provides=("$_pkgname")
+conflicts=("$_pkgname")
+depends=('networkmanager')
 makedepends=('cmake' 'doxygen')
-source=("http://download.kde.org/unstable/networkmanager-qt/${pkgver}/src/${pkgname}-${pkgver}.tar.xz")
+source=("http://download.kde.org/unstable/networkmanager-qt/${pkgver}/src/${_pkgname}-${pkgver}.tar.xz")
 sha256sums=('02242d49958ac88e056f093cff08f9e94ff888d14a6765180ddc991caceb5db8')
 
 prepare() {
@@ -19,7 +22,8 @@ prepare() {
 
 build() {
   cd build
-  cmake ../${pkgname}-${pkgver} \
+  cmake ../${_pkgname}-${pkgver} \
+    -DDISABLE_MODEMMANAGERQT=1 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr
   make
