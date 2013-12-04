@@ -4,9 +4,9 @@
 pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.12
-_scmversion=-09579-g049ffa8
-pkgver=${_basekernel}${_scmversion//-/_}
+_basekernel=3.13-rc2
+_scmversion=-00208-g8ecffd7
+pkgver=${_basekernel//-/_}${_scmversion//-/_}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
@@ -19,7 +19,6 @@ source=("linux-${_basekernel}.tar.gz"
         # standard config files for mkinitcpio ramdisk
         "${pkgname}.preset"
         'change-default-console-loglevel.patch'
-	'new-helper-dump-align.patch'
 	)
 md5sums=(SKIP
          # custom config for faster builds
@@ -27,14 +26,10 @@ md5sums=(SKIP
          # modified to skip fallback preset
          'bd73e0a2b3b80a220ab18a3c0c5fcc2a'
 	 '9d3c56a4b999c8bfbd4018089a62f662'
-	 '33ea0b38763f216a417c415b9da2c213'
 	)
 
 prepare() {
   cd "${srcdir}/linux-${_basekernel}"
-
-  # Revert to fix truncated coredump https://lkml.org/lkml/2013/11/15/288
-  patch -R -Np1 -i "${srcdir}/new-helper-dump-align.patch"
 }
 
 build() {
