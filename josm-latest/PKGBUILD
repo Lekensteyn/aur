@@ -3,21 +3,34 @@
 
 pkgname=josm-latest
 pkgver=6320
-pkgrel=1
+pkgrel=2
 pkgdesc="Nightly build of an editor for OpenStreetMap written in Java."
 arch=('any')
 url="http://josm.openstreetmap.de/"
 license=('GPL')
+makedepends=('ca-certificates')
 depends=('java-runtime')
 conflicts=('josm')
 source=('http://josm.openstreetmap.de/josm-latest.jar'
         'http://josm.openstreetmap.de/browser/trunk/images/logo.png?format=raw'
+        # used for josm-tested.jar:
+        #'http://josm.openstreetmap.de/download/josm.openstreetmap.de.crt'
         'josm.desktop'
         'josm.sh')
 md5sums=('SKIP'
          '16c79ebbacbe5a30bc7cae5260ac149d'
+         #'f6e88024395abdb4678f13848a6c0902'
          'e2b8c820100f3403a6cd10c1239d659a'
          'a497395e555e22c5e0412ebbab911737')
+noextract=('josm-latest.jar')
+
+prepare() {
+  rm -f josm.ks
+  keytool -importcert -storepass dummypass -noprompt -keystore josm.ks -file \
+    /usr/share/ca-certificates/mozilla/Certum_Root_CA.crt
+    # josm.openstreetmap.de.crt # for josm-tested.jar
+  jarsigner -keystore josm.ks -strict -verify josm-latest.jar
+}
 
 pkgver() {
     unzip -p josm-latest.jar REVISION | sed -n 's/Revision: \([0-9]*\)/\1/p'
