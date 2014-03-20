@@ -3,7 +3,7 @@
 # Contributor: Florian Pritz <bluewind at jabber dot ccc dot de>
 pkgname=('wireshark-cli' 'wireshark-gtk')
 pkgbase=wireshark
-pkgver=1.11.2.r54464
+pkgver=1.11.3_rc1_2028_gbbd1880
 # tarball is named as such
 _pkgver=1.11.3
 pkgrel=1
@@ -13,7 +13,7 @@ makedepends=('cmake' 'gtk2' 'krb5' 'libpcap' 'bash' 'gnutls'
              'lua' 'python' 'desktop-file-utils' 'hicolor-icon-theme')
 url='http://www.wireshark.org/'
 options=(!libtool)
-source=(${pkgbase}-${_pkgver}.tar.bz2)
+source=(${pkgbase}-${_pkgver}.tar.gz)
 sha256sums=('SKIP')
 
 prepare() {
