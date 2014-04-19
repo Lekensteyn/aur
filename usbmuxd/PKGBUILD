@@ -4,7 +4,7 @@
 
 pkgname=usbmuxd
 pkgver=1.0.9
-pkgrel=1
+pkgrel=1.1
 pkgdesc="USB Multiplex Daemon"
 url="http://marcansoft.com/blog/iphonelinux/usbmuxd/"
 arch=('i686' 'x86_64')
@@ -12,16 +12,21 @@ license=('GPL2' 'GPL3')
 depends=('libimobiledevice')
 makedepends=('git')
 install=usbmuxd.install
-source=("git+http://git.sukimashita.com/usbmuxd.git#commit=c92b4f59aba053a3df1ae67c49403122650ad996"
+source=("git+http://git.sukimashita.com/usbmuxd.git#commit=c24463ee5f4ebd3cabb279c2a37e35b1777f4dd9"
 	'usbmuxd.service'
+    'Fix-connection-abort-if-device-buffer-is-full.patch'
 	'39-usbmuxd.rules')
 md5sums=('SKIP'
          'dae0660f972510a6483992b5b81e1b5a'
+         '5fd8ab2d125d40c1da5a167c6933d02e'
          'dc4b2893651149eccbf7b2c8467cd288')
 
 prepare() {
   cd usbmuxd
   sed -i -e 's|udevrulesdir = /lib/udev/rules.d|udevrulesdir = /usr/lib/udev/rules.d|' Makefile.am
+
+  # This is supposed to fix an EPIPE while using idevicerestore
+  patch -Np1 -i "${srcdir}/Fix-connection-abort-if-device-buffer-is-full.patch"
 }
 
 build() {

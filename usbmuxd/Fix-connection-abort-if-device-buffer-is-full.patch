@@ -1,0 +1,51 @@
+From f5529344dfbf5cbd4b37a1a2874e7ddcd8395cc9 Mon Sep 17 00:00:00 2001
+From: Peter Wu <peter@lekensteyn.nl>
+Date: Sun, 20 Apr 2014 00:56:37 +0200
+Subject: [PATCH] Fix connection abort if device buffer is full
+
+When trying to upload a IPSW filesystem to an iPad, the process would
+randomly stop somewhere at 3% or 10%. It is possible that the receive
+buffer of the iPad is full. To prevent erroring out because size ==
+conn->sendable == 0, skip reading from the client.
+
+There is a similar case where the clients is ready to accept data, but
+the device has no data to send. Apply a similar fix there.
+
+Hopefully the device is fast enough to reply in the next main loop
+iteration, otherwise the CPU usage of usbmux will spike because the
+client socket is ready while there is no data to process...
+---
+ src/device.c | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/src/device.c b/src/device.c
+index e36509e..1c8ec8c 100644
+--- a/src/device.c
++++ b/src/device.c
+@@ -424,9 +424,9 @@ void device_client_process(int device_id, struct mux_client *client, short event
+ 
+ 	int res;
+ 	int size;
+-	if(events & POLLOUT) {
++	if((events & POLLOUT) && conn->ib_size > 0) {
+ 		// Client is ready to receive data, send what we have
+-		// in the client's connection buffer
++		// in the client's connection buffer (if there is any)
+ 		size = client_write(conn->client, conn->ib_buf, conn->ib_size);
+ 		if(size <= 0) {
+ 			usbmuxd_log(LL_DEBUG, "error writing to client (%d)", size);
+@@ -441,9 +441,10 @@ void device_client_process(int device_id, struct mux_client *client, short event
+ 			memmove(conn->ib_buf, conn->ib_buf + size, conn->ib_size);
+ 		}
+ 	}
+-	if(events & POLLIN) {
++	if((events & POLLIN) && conn->sendable > 0) {
+ 		// There is inbound trafic on the client socket,
+ 		// convert it to tcp and send to the device
++		// (if the device's input buffer is not full)
+ 		size = client_read(conn->client, conn->ob_buf, conn->sendable);
+ 		if(size <= 0) {
+ 			if (size < 0) {
+-- 
+1.9.2
+
