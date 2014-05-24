@@ -3,9 +3,9 @@
 # Contributor: Florian Pritz <bluewind at jabber dot ccc dot de>
 pkgname=('wireshark-cli' 'wireshark-gtk')
 pkgbase=wireshark
-pkgver=1.11.3_rc1_2028_gbbd1880
+pkgver=1.99.0_rc1_7_g6db77b0
 # tarball is named as such
-_pkgver=1.11.3
+_pkgver=1.99.0
 pkgrel=1
 arch=('i686' 'x86_64')
 license=('GPL2')
@@ -32,15 +32,15 @@ build() {
 
   # QT5 is broken, "Unknown CMake command "QT_ADD_TRANSLATION"
   cmake \
-  	-DCMAKE_INSTALL_PREFIX=/usr \
-	-DENABLE_GNUTLS=1 \
-	-DENABLE_ZLIB=1 \
-	-DENABLE_LUA=1 \
-	-DENABLE_GTK3=0 \
-	\
-	-DENABLE_QT5=0 \
-	-DENABLE_GEOIP=0 \
-	..
+      -DCMAKE_INSTALL_PREFIX=/usr \
+      -DENABLE_GNUTLS=1 \
+      -DENABLE_ZLIB=1 \
+      -DENABLE_LUA=1 \
+      -DENABLE_GTK3=0 \
+      \
+      -DENABLE_QT5=0 \
+      -DENABLE_GEOIP=0 \
+      ..
   make all
 }
 
