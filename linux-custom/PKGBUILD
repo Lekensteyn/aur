@@ -4,8 +4,8 @@
 pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.15-rc5
-_scmversion=-00077-g14186fe
+_basekernel=3.15-rc8
+_scmversion=-00058-gd2cfd31
 pkgver=${_basekernel//-/_}${_scmversion//-/_}
 pkgrel=1
 arch=('i686' 'x86_64')
