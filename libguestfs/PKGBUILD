@@ -1,0 +1,101 @@
+# Libguestfs: Installer: Arch
+# Contributor: Xiao-Long Chen <chenxiaolong@cxl.epac.to>
+# Maintainer: Nikos Skalkotos <skalkoto (at) Gmail.com>
+# 
+# special thanks go to Evaggelos Balaskas < ebalaskas _AT_ ebalaskas _DOT_ gr >
+# for all the help
+
+pkgname=libguestfs
+pkgver=1.26.5
+pkgver_short=${pkgver%.*}
+pkgrel=1
+pkgdesc="Access and modify virtual machine disk image"
+arch=("i686" "x86_64")
+url="http://libguestfs.org"
+license=("GPL2" "LGPL2.1")
+backup=("etc/libguestfs-tools.conf")
+# backup=("etc/libguestfs-tools.conf" "etc/php.d/guestfs_php.ini")
+install="appliance.install"
+depends=("qemu"
+#         "febootstrap>=3.21"
+         "augeas"
+         "hivex>=1.3.2"
+         "libconfig"
+         "libvirt"
+         "cpio"
+	 "wget")
+makedepends=("qemu"
+             "pcre"
+             "fuse"
+             "cdrkit"
+             "libvirt"
+             "libconfig"
+             "libxml2"
+             "gperf"
+             "python2"
+             "perl"
+             "perl-string-shellquote"
+             "perl-libintl-perl"
+             "perl-sys-virt"
+#             "lua"
+#             "ghc"
+#             "ruby"
+#             "erlang"
+#             "gjs"
+#             "php"
+#             "gobject-introspection"
+             "ocaml-findlib"
+	     "ocaml")
+optdepends=("python2: Python bindings"
+#            "ruby: Ruby Bindings"
+#            "gjs: Javascript Bindings for GNOME"
+#            "php: PHP bindings"
+#            "erlang: Erlang Bindings"
+#            "ghc: Haskell Bindings"
+#            "lua: Lua Bindings"
+            "perl: Perl Bindings"
+            "perl-sys-virt: Sys-Virt tools"
+	    "ocaml: Ocaml libs")
+provides=("guestfish=${pkgver}")
+options=()
+source=("http://libguestfs.org/download/${pkgver_short}-stable/${pkgname}-${pkgver}.tar.gz"
+        "update-libguestfs-appliance")
+sha512sums=('c60d1d645dfcc53f6c18251e7575ca00edf13499aa6e2501bd84a4cde68f32d8968259698b9a4ce0a4854e8c53b62b87330db7b932c776d21c1fc2d23889eed8'
+'35c127c9bbc222a45442bd4cbf0d947389a9367cd662a69692248e476846060ce2c7e57edcbc274ac546dcd160317befaf5fee76c4213e4f575cd1d55222fd62')
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+
+# Currently lua, erlang, php, haskel, ruby, ghc, GObject and java bindings are
+# disabled. If you want to create any of the aforementioned language bindings
+# uncomment the appropriate line in makedepends and remove the --disable-*
+# option in ./configure
+
+  ./configure \
+    PYTHON=python2 \
+    --prefix=/usr \
+    --libdir=/usr/lib \
+    --mandir=/usr/share/man \
+    --sysconfdir=/etc \
+    --disable-probes \
+    --disable-appliance \
+    --disable-daemon \
+    --without-java \
+    --enable-introspection=no \
+    --disable-lua \
+    --disable-erlang \
+    --disable-php \
+    --disable-haskell \
+    --disable-ruby \
+    --disable-gobject \
+    --disable-golang
+
+  make -j3
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+
+  mkdir -p "$pkgdir/usr/lib/guestfs"
+  install -Dm755 "${srcdir}/update-libguestfs-appliance" "$pkgdir/usr/bin/update-libguestfs-appliance"
+}
