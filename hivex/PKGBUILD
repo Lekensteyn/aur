@@ -13,6 +13,8 @@ depends=(
     "libxml2"
     "perl"
     )
+# If you build from git, you also need the ocaml packages below. In that case,
+# you can still disable the OCaml feature with --disable-ocaml.
 makedepends=(
 #    "ocaml-findlib"
 #    "ocaml"
@@ -28,9 +30,9 @@ source=("http://libguestfs.org/download/$pkgname/$pkgname-$pkgver.tar.gz"
 build() {
     cd "$srcdir/$pkgname-$pkgver"
     unset PREFIX
-    # Currently OCaml and Ruby language bindings are disabled. If you need to
-    # build applications in those language, remove --disable-* below and
-    # uncomment the packages in makedepends.
+    # Some language bindings are disabled. If you need to build applications in
+    # those language, remove --disable-* below and uncomment the packages in
+    # makedepends.
     PYTHON=python$_pythonver \
     ./configure \
         --prefix=/usr \
