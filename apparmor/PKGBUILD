@@ -14,7 +14,7 @@ pkgdesc='Linux application security framework - mandatory access control for pro
 arch=('i686' 'x86_64')
 license=('GPL')
 url='http://wiki.apparmor.net/index.php/Main_Page'
-makedepends=('bzr' 'flex' 'swig' 'perl' 'python' 'perl-locale-gettext' 'perl-rpc-xml' 'audit')
+makedepends=('flex' 'swig' 'perl' 'python' 'perl-locale-gettext' 'perl-rpc-xml' 'audit')
 
 source=("https://launchpad.net/$pkgname/${_majorver}/$pkgver/+download/$pkgname-$pkgver.tar.gz"
         "apparmor_load.sh"
