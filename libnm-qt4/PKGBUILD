@@ -1,0 +1,35 @@
+# $Id: PKGBUILD 225796 2014-11-09 10:32:47Z andrea $
+# Maintainer: Andrea Scarpino <andrea@archlinux.org>
+
+pkgname=libnm-qt4
+groups=('modified')
+pkgver=0.9.8.3
+pkgrel=1.1
+pkgdesc='Qt4-only wrapper for NetworkManager DBus API'
+arch=('i686' 'x86_64')
+url='https://projects.kde.org/projects/extragear/libs/libnm-qt'
+license=('LGPL')
+depends=('networkmanager')
+makedepends=('cmake' 'doxygen')
+source=("http://download.kde.org/unstable/networkmanager-qt/${pkgver}/src/libnm-qt-${pkgver}.tar.xz")
+sha256sums=('1f749a21dd8b58026842d87f19e4f5b482b18a7620517ced4a8bdf38dbe84560')
+
+prepare() {
+  mkdir -p build
+}
+
+build() {
+  cd build
+  cmake ../libnm-qt-${pkgver} \
+    -DDISABLE_MODEMMANAGERQT=1 \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_INSTALL_PREFIX=/usr \
+    -DCMAKE_INSTALL_LIBDIR=lib \
+    -DDISABLE_TESTING=ON
+  make
+}
+
+package() {
+  cd build
+  make DESTDIR="${pkgdir}" install
+}
