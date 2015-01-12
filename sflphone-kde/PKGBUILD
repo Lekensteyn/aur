@@ -32,7 +32,7 @@ source=("https://projects.savoirfairelinux.com/attachments/download/14805/sflpho
 md5sums=('2092fb6ebcdfdf4f0f45da4738b1be8d'
          'fd0d2570647ac8f4c52a475c617734c4'
          '706b7ffc530b36b2f02adab38dd1a7d7')
-install=("${pkgname}.install")
+install="${pkgname}.install"
 
 # true/false to enable/disable zrtp support.
 # BROKEN with at least libzrtpcpp 4.3.1 and sflphone 1.4.1
