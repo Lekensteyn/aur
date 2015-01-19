@@ -1,0 +1,32 @@
+# Maintainer: Miguel Revilla <yo@miguelrevilla.com>
+# Contributor: s1gma <s1gma@mindslicer.com>
+
+pkgname=binwalk
+pkgver=2.0.1
+pkgrel=1
+pkgdesc="A tool for searching a given binary image for embedded files"
+arch=('i686' 'x86_64')
+url="http://binwalk.org"
+license=('MIT')
+depends=('python-magic' 'python-pyqtgraph' 'python-opengl' 'python-numpy' 'python-scipy' 'firmware-mod-kit'
+         'unrar' 'lha' 'git' 'mtd-utils' 'zlib' 'xz' 'ncompress' 'gzip' 'bzip2' 'tar' 'arj' 'p7zip'
+         'java-environment')
+source=(https://github.com/devttys0/${pkgname}/archive/v${pkgver}.tar.gz)
+md5sums=('ffeea02b765e44ac7a2455398011fc73')
+
+prepare() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  sed -i "s|\$(PYTHON) ./setup.py install \$(PREFIX)|\$(PYTHON) ./setup.py install \"--prefix=${pkgdir}/usr\"|" Makefile.in
+}
+
+build() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "${srcdir}/${pkgname}-${pkgver}"
+  make DESTDIR="${pkgdir}" install
+  install -m 644 -D "${srcdir}/${pkgname}-${pkgver}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+}
