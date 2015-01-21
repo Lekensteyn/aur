@@ -26,13 +26,12 @@ optdepends=(
   'gzip: GZIP decompression support'
   'lha: LHA decompression support'
   'mtd-utils: JFFS filesystem support'
-  'p7zip: 7z, LZMA and iso decompression support'
+  'p7zip: 7z, LZMA, iso and zip decompression support'
   'squashfs-tools: squashfs support'
   'tar: TAR archive support'
   'unrar: RAR decompression support'
   'xz: XZ-compressed tar archive support'
   'firmware-mod-kit: cramfs support'
-  #'java-environment: no idea why it is suggested'
 )
 source=(https://github.com/devttys0/${pkgname}/archive/v${pkgver}.tar.gz)
 md5sums=('ffeea02b765e44ac7a2455398011fc73')
