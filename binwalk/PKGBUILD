@@ -1,49 +1,53 @@
-# Maintainer: Miguel Revilla <yo@miguelrevilla.com>
+# Maintainer: Levente Polyak <levente[at]leventepolyak[dot]net>
 # Contributor: Peter Wu <peter@lekensteyn.nl>
+# Contributor: Miguel Revilla <yo@miguelrevilla.com>
 # Contributor: s1gma <s1gma@mindslicer.com>
 
 pkgname=binwalk
 pkgver=2.0.1
 pkgrel=2
 pkgdesc="A tool for searching a given binary image for embedded files"
-arch=('any')
 url="http://binwalk.org"
+arch=('any')
 license=('MIT')
 depends=('python')
 optdepends=(
-  'python-pyqtgraph: for generating graphs and visualization'
-  # already satisfied by python-pyqtgraph
-  #'python-opengl: for generating graphs and visualization'
-  #'python-numpy: for generating graphs and visualization'
-
-  # Optional runtime dependencies
-  # already satisfied by python:
-  #'bzip2: bzip2 decompression support'
-  # see extract.conf and plugins/
+  'python-pyqtgraph: graph and visualization support'
+  'python-opengl: binviz module support'
   'arj: ARJ decompression support'
   'cabextract: CAB archive support'
   'cpio: CPIO archvie support'
   'gzip: GZIP decompression support'
   'lha: LHA decompression support'
   'mtd-utils: JFFS filesystem support'
-  'p7zip: 7z, LZMA, iso and zip decompression support'
+  'p7zip: ZIP, LZMA and ISO decompression support'
   'squashfs-tools: squashfs support'
   'tar: TAR archive support'
   'unrar: RAR decompression support'
-  'xz: XZ-compressed tar archive support'
+  'xz: XZ decompression support'
   'firmware-mod-kit: cramfs support'
 )
-source=(https://github.com/devttys0/${pkgname}/archive/v${pkgver}.tar.gz)
-md5sums=('ffeea02b765e44ac7a2455398011fc73')
-sha256sums=('90ee8426d71e91b62dfe4a1446c457bc7835b475b28717859e275a0494403959')
+source=(https://github.com/devttys0/${pkgname}/archive/v${pkgver}.tar.gz
+        replace-java.patch)
+sha512sums=('de223f61a0a212469c21b8e36d02cadc83f1cdb96a0f6114490d15d8dc12c93a86b46ef74379acb96b32b305e75ca66e940d7a18a8dc3b5036ebe8946dcca0f3'
+            '743caf39ce5ca0bc7573e0600815bbf4932522b9235b7f35187483030c6148d52ab1946f1ec20bf43f9c040576365beb714afe384c4d7485d87463cf25668234')
+
+prepare() {
+  cd ${pkgname}-${pkgver}
+  patch -p0 < ../replace-java.patch
+}
 
 build() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  python ./setup.py build
+  cd ${pkgname}-${pkgver}
+  python setup.py build
 }
 
 package() {
-  cd "${srcdir}/${pkgname}-${pkgver}"
-  python ./setup.py install --prefix="${pkgdir}/usr"
-  install -m 644 -D "${srcdir}/${pkgname}-${pkgver}/LICENSE" "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
+  cd ${pkgname}-${pkgver}
+  python setup.py install -O1 --prefix="${pkgdir}/usr"
+  install -d "${pkgdir}/usr/share/doc/${pkgname}"
+  install -Dm 644 *.md "${pkgdir}/usr/share/doc/${pkgname}"
+  install -Dm 644 LICENSE "${pkgdir}/usr/share/licenses/${pkgname}/LICENSE"
 }
+
+# vim: ts=2 sw=2 et:
