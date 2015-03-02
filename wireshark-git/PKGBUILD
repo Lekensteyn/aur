@@ -1,36 +1,30 @@
 # Maintainer: Peter Wu <peter@lekensteyn.nl>
 # Contributor: Guillaume ALAUX <guillaume@archlinux.org>
 # Contributor: Florian Pritz <bluewind at jabber dot ccc dot de>
-
-# Development snapshot using wireshark-gtk as default 'wireshark' program.
-
-pkgname=('wireshark-cli' 'wireshark-gtk' 'wireshark-qt')
-pkgbase=wireshark
-pkgver=1.99.1rc0_232_g5e4e17c
-# autofoo tarball has only the abbrev. name, but ./tools/git-export-release.sh
-# creates a tarball with the full git version.
-_pkgver=${pkgver//_/-}
+pkgname=('wireshark-cli-git' 'wireshark-gtk-git' 'wireshark-qt-git')
+pkgbase=wireshark-git
+pkgver=1.99.3rc0.r349.g9c55903
 pkgrel=1
 arch=('i686' 'x86_64')
 license=('GPL2')
-makedepends=('cmake' 'gtk2' 'qt5-tools'
+makedepends=('git' 'cmake'
+             'gtk3' 'qt5-tools'
              'krb5' 'libpcap' 'libgcrypt' 'gnutls' 'portaudio'
              'lua' 'python' 'desktop-file-utils' 'hicolor-icon-theme')
 url='https://www.wireshark.org/'
-options=(!libtool)
-source=(${pkgbase}-${_pkgver}.tar.xz)
-sha256sums=('SKIP')
+_gitname=wireshark
+source=(git+https://code.wireshark.org/review/wireshark)
+sha1sums=('SKIP')
+replaces=('wireshark-cli' 'wireshark-gtk' 'wireshark-qt')
+provides=('wireshark-cli' 'wireshark-gtk' 'wireshark-qt')
 
-prepare() {
-  cd ${pkgbase}-${_pkgver}
-
-  # Prevent using absolute cmake build path for documentation CSS
-  sed 's#--css=.*/docbook/ws.css#--css=ws.css#' \
-    -i cmake/modules/FindPOD.cmake
+pkgver() {
+  cd "${srcdir}/$_gitname"
+    git describe --match=v\* | sed 's/^v//;s/\([^-]*-g\)/r\1/;s/-/./g'
 }
 
 build() {
-  cd ${pkgbase}-${_pkgver}
+  cd "${srcdir}/$_gitname"
 
   mkdir -p build
   cd build
@@ -41,9 +35,9 @@ build() {
       -DCMAKE_SKIP_RPATH=1 \
       -DENABLE_CARES=0 \
       -DENABLE_GCRYPT=1 \
-      -DENABLE_GEOIP=0 \
+      -DENABLE_GEOIP=1 \
       -DENABLE_GNUTLS=1 \
-      -DENABLE_GTK3=0 \
+      -DENABLE_GTK3=1 \
       -DENABLE_KERBEROS=1 \
       -DENABLE_LUA=1 \
       -DENABLE_PORTAUDIO=1 \
@@ -51,17 +45,21 @@ build() {
       -DENABLE_SMI=0 \
       -DENABLE_QT5=1 \
       -DENABLE_ZLIB=1 \
+      -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      -DDISABLE_WERROR=1 \
+      -DCMAKE_C_FLAGS="$CFLAGS" \
+      -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
       ..
   make all
 }
 
-package_wireshark-cli() {
+package_wireshark-cli-git() {
   pkgdesc='a free network protocol analyzer for Unix/Linux and Windows - CLI version'
-  depends=('krb5' 'libgcrypt' 'libcap' 'libpcap' 'gnutls'  'glib2' 'lua')
+  depends=('krb5' 'libgcrypt' 'libcap' 'libpcap' 'geoip' 'gnutls' 'glib2' 'lua')
   install=wireshark.install
   conflicts=(wireshark)
 
-  cd ${pkgbase}-${_pkgver}
+  cd "${srcdir}/${_gitname}"
 
   make -C build DESTDIR="${pkgdir}" install
 
@@ -73,28 +71,27 @@ package_wireshark-cli() {
     "${pkgdir}/usr/bin/wireshark"
 
   # Headers
-  install -dm755 "${pkgdir}"/usr/include/${pkgbase}/{epan/{crypt,dfilter,dissectors,ftypes},wiretap,wsutil}
+  install -dm755 "${pkgdir}"/usr/include/wireshark/{epan/{crypt,dfilter,dissectors,ftypes,wmem},wiretap,wsutil}
 
-  install -m644 color.h build/config.h register.h ws_symbol_export.h "${pkgdir}/usr/include/${pkgbase}"
-  for d in epan epan/crypt epan/dfilter epan/dissectors epan/ftypes wiretap wsutil; do
-    install -m644 ${d}/*.h "${pkgdir}"/usr/include/${pkgbase}/${d}
+  install -m644 color.h build/config.h register.h ws_symbol_export.h "${pkgdir}/usr/include/wireshark/"
+  for d in epan epan/crypt epan/dfilter epan/dissectors epan/ftypes epan/wmem wiretap wsutil; do
+    install -m644 ${d}/*.h "${pkgdir}"/usr/include/wireshark/${d}
   done
   for d in epan wiretap; do
-    install -m644 build/${d}/*.h "${pkgdir}"/usr/include/${pkgbase}/${d}
+    install -m644 build/${d}/*.h "${pkgdir}"/usr/include/wireshark/${d}
   done
 }
 
-package_wireshark-gtk() {
+package_wireshark-gtk-git() {
   pkgdesc='a free network protocol analyzer for Unix/Linux and Windows - GTK frontend'
-  depends=('gtk2' 'portaudio' 'wireshark-cli' 'desktop-file-utils' 'hicolor-icon-theme')
+  depends=('gtk3' 'portaudio' 'wireshark-cli' 'desktop-file-utils' 'hicolor-icon-theme')
   install=wireshark-gtk.install
   replaces=(wireshark)
   conflicts=(wireshark)
 
-  cd ${pkgbase}-${_pkgver}
+  cd "${srcdir}/${_gitname}"
 
-  # Since 1.99, wireshark is not the gtk version anymore
-  install -Dm755 build/run/wireshark-gtk "${pkgdir}/usr/bin/wireshark"
+  install -Dm755 build/run/wireshark-gtk "${pkgdir}/usr/bin/wireshark-gtk"
   for d in 16 32 48; do
     install -Dm644 image/hi${d}-app-wireshark.png  \
                    "${pkgdir}/usr/share/icons/hicolor/${d}x${d}/apps/wireshark.png"
@@ -107,14 +104,13 @@ package_wireshark-gtk() {
   install -Dm644 wireshark.desktop "${pkgdir}/usr/share/applications/wireshark.desktop"
 }
 
-package_wireshark-qt() {
+package_wireshark-qt-git() {
   pkgdesc='a free network protocol analyzer for Unix/Linux and Windows - Qt frontend'
-  depends=('qt5-base' 'wireshark-cli' 'desktop-file-utils')
+  depends=('qt5-base' 'wireshark-cli-git' 'desktop-file-utils')
   install=wireshark-qt.install
 
-  cd ${pkgbase}-${_pkgver}
-  # Since 1.99, wireshark-qt is the default wireshark
-  install -Dm755 build/run/wireshark "${pkgdir}/usr/bin/wireshark-qt"
+  cd "${srcdir}/${_gitname}"
+  install -Dm755 build/run/wireshark "${pkgdir}/usr/bin/wireshark"
 
   install -d "${pkgdir}/usr/share/applications"
   sed -e 's/^Name.*=Wireshark/& (QT)/g' -e '/Exec=/s/wireshark/&-qt/g' \
