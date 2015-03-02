@@ -4,10 +4,10 @@
 pkgname=('wireshark-cli-git' 'wireshark-gtk-git' 'wireshark-qt-git')
 pkgbase=wireshark-git
 pkgver=1.99.3rc0.r349.g9c55903
-pkgrel=1
+pkgrel=1.1
 arch=('i686' 'x86_64')
 license=('GPL2')
-makedepends=('git' 'cmake'
+makedepends=('git' 'cmake' 'ninja'
              'gtk3' 'qt5-tools'
              'krb5' 'libpcap' 'libgcrypt' 'gnutls' 'portaudio'
              'lua' 'python' 'desktop-file-utils' 'hicolor-icon-theme')
@@ -31,6 +31,7 @@ build() {
 
   # cares needs c-ares package
   cmake \
+      -G Ninja \
       -DCMAKE_INSTALL_PREFIX=/usr \
       -DCMAKE_SKIP_RPATH=1 \
       -DENABLE_CARES=0 \
@@ -50,7 +51,7 @@ build() {
       -DCMAKE_C_FLAGS="$CFLAGS" \
       -DCMAKE_CXX_FLAGS="$CXXFLAGS" \
       ..
-  make all
+  ninja
 }
 
 package_wireshark-cli-git() {
@@ -61,7 +62,7 @@ package_wireshark-cli-git() {
 
   cd "${srcdir}/${_gitname}"
 
-  make -C build DESTDIR="${pkgdir}" install
+  DESTDIR="${pkgdir}" ninja -C build install
 
   #wireshark uid group is 150
   chgrp 150 "${pkgdir}/usr/bin/dumpcap"
