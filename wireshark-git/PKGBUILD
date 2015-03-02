@@ -9,7 +9,7 @@ arch=('i686' 'x86_64')
 license=('GPL2')
 makedepends=('git' 'cmake' 'ninja'
              'gtk3' 'qt5-tools'
-             'krb5' 'libpcap' 'libgcrypt' 'gnutls' 'portaudio'
+             'krb5' 'libpcap' 'libgcrypt' 'geoip' 'gnutls' 'portaudio'
              'lua' 'python' 'desktop-file-utils' 'hicolor-icon-theme')
 url='https://www.wireshark.org/'
 _gitname=wireshark
