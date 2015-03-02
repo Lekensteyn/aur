@@ -85,7 +85,7 @@ package_wireshark-cli-git() {
 
 package_wireshark-gtk-git() {
   pkgdesc='a free network protocol analyzer for Unix/Linux and Windows - GTK frontend'
-  depends=('gtk3' 'portaudio' 'wireshark-cli' 'desktop-file-utils' 'hicolor-icon-theme')
+  depends=('gtk3' 'portaudio' 'wireshark-cli-git' 'desktop-file-utils' 'hicolor-icon-theme')
   install=wireshark-gtk.install
   replaces=(wireshark)
   conflicts=(wireshark)
