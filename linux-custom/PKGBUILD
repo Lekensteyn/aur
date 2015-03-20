@@ -4,8 +4,8 @@
 pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=3.19
-_scmversion=
+_basekernel=4.0-rc4
+_scmversion=-00199-gb314aca
 pkgver=${_basekernel//-/_}${_scmversion//-/_}
 pkgrel=1
 arch=('i686' 'x86_64')
