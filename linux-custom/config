@@ -1,6 +1,6 @@
 #
 # Automatically generated file; DO NOT EDIT.
-# Linux/x86 4.0.0-rc4 Kernel Configuration
+# Linux/x86 4.0.0-rc5 Kernel Configuration
 #
 CONFIG_64BIT=y
 CONFIG_X86_64=y
@@ -4178,7 +4178,7 @@ CONFIG_CRYPTO_SHA256=y
 #
 CONFIG_CRYPTO_AES=y
 CONFIG_CRYPTO_AES_X86_64=m
-# CONFIG_CRYPTO_AES_NI_INTEL is not set
+CONFIG_CRYPTO_AES_NI_INTEL=m
 # CONFIG_CRYPTO_ANUBIS is not set
 CONFIG_CRYPTO_ARC4=m
 CONFIG_CRYPTO_BLOWFISH=m
