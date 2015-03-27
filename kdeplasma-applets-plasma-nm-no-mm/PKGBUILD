@@ -1,24 +1,30 @@
-# $Id: PKGBUILD 200039 2013-11-22 00:08:52Z andrea $
+# $Id: PKGBUILD 228849 2015-01-09 14:08:01Z fyan $
 # Maintainer: Andrea Scarpino <andrea@archlinux.org>
 # Contributor: Antonio Rojas < nqn1976 @ gmail.com >
 
 _pkgname=kdeplasma-applets-plasma-nm
 pkgname=${_pkgname}-no-mm
 pkgver=0.9.3.5
-pkgrel=1
+pkgrel=2
 pkgdesc="Plasma applet written in QML for managing network connections (without ModemManager support)"
 arch=('i686' 'x86_64')
 url="https://projects.kde.org/projects/kde/workspace/plasma-nm"
 license=('GPL')
 depends=('kdebase-workspace' 'libnm-qt')
-makedepends=('cmake' 'automoc4')
+makedepends=('cmake' 'automoc4' 'openconnect')
+optdepends=('openconnect: Cisco AnyConnect VPN plugin')
 conflicts=("$_pkgname" "kdeplasma-applets-networkmanagement")
 provides=("$_pkgname")
-source=("http://download.kde.org/stable/plasma-nm/plasma-nm-${pkgver}.tar.xz")
-md5sums=('16f5e711de503fa8e5adeef9922c7c98')
+source=("http://download.kde.org/stable/plasma-nm/plasma-nm-${pkgver}.tar.xz"
+        'openconnect7.patch')
+md5sums=('16f5e711de503fa8e5adeef9922c7c98'
+         '669e568324f059acc8777e82403b1deb')
 
 prepare() {
   mkdir build
+
+  cd plasma-nm-${pkgver}
+  patch -p1 -i "${srcdir}"/openconnect7.patch
 }
 
 build() {
@@ -26,7 +32,6 @@ build() {
   cmake ../plasma-nm-${pkgver} \
     -DDISABLE_MODEMMANAGER_SUPPORT=1 \
     -DWITH_MobileBroadbandProviderInfo=0 \
-    -DWITH_OpenConnect=0 \
     -DCMAKE_INSTALL_PREFIX=/usr \
     -DCMAKE_BUILD_TYPE=Release
   make
