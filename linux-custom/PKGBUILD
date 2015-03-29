@@ -4,7 +4,7 @@
 pkgbase=linux
 pkgname=('linux-custom' 'linux-custom-headers')
 _kernelname=${pkgname#linux}
-_basekernel=4.0-rc5
+_basekernel=4.0-rc6
 _scmversion=
 pkgver=${_basekernel//-/_}${_scmversion//-/_}
 pkgrel=1
