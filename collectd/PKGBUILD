@@ -37,10 +37,8 @@ makedepends=('curl' 'libdbi' 'libesmtp' 'libgcrypt' 'libmemcached'
 
 depends=('libltdl' 'iptables')
 
-source=("${url}files/${pkgname}-${pkgver}.tar.bz2"
-        'service')
-sha1sums=('f98847ac8cfcd3a041def620ba07cd2c49b426f8'
-          '04f676d0b76c34df0bbf94629813e035b1febe04')
+source=("${url}files/${pkgname}-${pkgver}.tar.bz2")
+sha1sums=('f98847ac8cfcd3a041def620ba07cd2c49b426f8')
 
 backup=('etc/collectd.conf')
 
@@ -48,6 +46,7 @@ prepare() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
 	sed 's/-Werror//g' -i *.ac */*.{am,in} */*/*.{am,in}
 	autoreconf
+	sed 's, -C /etc/collectd/collectd.conf,,' -i contrib/collectd.service
 }
 
 build() {
@@ -66,6 +65,6 @@ package() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
 	make DESTDIR="${pkgdir}" install
 	rmdir "${pkgdir}/var/run" # FS#30201
-	install -Dm644 ../service "${pkgdir}"/usr/lib/systemd/system/collectd.service
+	install -Dm644 contrib/collectd.service "${pkgdir}"/usr/lib/systemd/system/collectd.service
 	install -Dm644 contrib/collectd2html.pl "${pkgdir}"/usr/share/collectd/collectd2html.pl
 }
