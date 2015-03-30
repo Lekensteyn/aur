@@ -3,7 +3,7 @@
 # Contributor: Gerhard Brauer <gerhard.brauer@web.de>
 
 pkgname=collectd
-pkgver=5.4.2
+pkgver=5.4.2.696.gaf5eb0c
 pkgrel=1
 pkgdesc='Daemon which collects system performance statistics periodically'
 url='http://collectd.org/'
@@ -37,8 +37,8 @@ makedepends=('curl' 'libdbi' 'libesmtp' 'libgcrypt' 'libmemcached'
 
 depends=('libltdl' 'iptables')
 
-source=("${url}files/${pkgname}-${pkgver}.tar.bz2")
-sha1sums=('f98847ac8cfcd3a041def620ba07cd2c49b426f8')
+source=("${pkgname}-${pkgver}.tar.bz2")
+sha1sums=('0a0a3d5d794b4acf5ee9f80d356da5348c705828')
 
 backup=('etc/collectd.conf')
 
