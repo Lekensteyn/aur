@@ -2,8 +2,8 @@
 # Maintainer: Gaetan Bisson <bisson@archlinux.org>
 # Contributor: Gerhard Brauer <gerhard.brauer@web.de>
 
-pkgname=collectd
-pkgver=5.4.2.696.gaf5eb0c
+pkgname=collectd-git
+pkgver=5.4.2.697.g125f3be
 pkgrel=1
 pkgdesc='Daemon which collects system performance statistics periodically'
 url='http://collectd.org/'
@@ -30,22 +30,24 @@ optdepends=('curl: apache, ascent, curl, nginx, and write_http plugins'
             'libxml2: ascent and libvirt plugins'
             'yajl: curl_json plugin')
 
-makedepends=('curl' 'libdbi' 'libesmtp' 'libgcrypt' 'libmemcached'
+makedepends=('git' 'curl' 'libdbi' 'libesmtp' 'libgcrypt' 'libmemcached'
              'libmariadbclient' 'iproute2' 'net-snmp' 'libnotify' 'liboping'
              'libpcap' 'postgresql-libs' 'python2' 'rrdtool' 'lm_sensors'
              'libvirt' 'libxml2' 'yajl')
 
 depends=('libltdl' 'iptables')
 
-source=("${pkgname}-${pkgver}.tar.bz2")
-sha1sums=('0a0a3d5d794b4acf5ee9f80d356da5348c705828')
+source=(git+https://github.com/Lekensteyn/collectd.git#commit=125f3be)
+sha1sums=('SKIP')
+replaces=('collectd')
+provides=('collectd')
 
 backup=('etc/collectd.conf')
 
 prepare() {
 	cd "${srcdir}/${pkgname}-${pkgver}"
 	sed 's/-Werror//g' -i *.ac */*.{am,in} */*/*.{am,in}
-	autoreconf
+	autoreconf -i
 	sed 's, -C /etc/collectd/collectd.conf,,' -i contrib/collectd.service
 }
 
