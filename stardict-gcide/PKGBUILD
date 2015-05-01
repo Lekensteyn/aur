@@ -2,22 +2,23 @@
 
 pkgname=stardict-gcide
 pkgver=2.4.2
-pkgrel=1
+pkgrel=2
 pkgdesc="The Collaborative International Dictionary of English for Stardict"
 license=('GPL')
 depends=('stardict')
 url="http://stardict.sourceforge.net"
 
-source=(http://yeelou.com/huzheng/stardict-dic/dict.org/stardict-dictd_www.dict.org_gcide-2.4.2.tar.bz2)
+#_mirror=http://yeelou.com/huzheng/stardict-dic/dict.org/
+_mirror=https://web.archive.org/web/20140917131745/http://abloz.com/huzheng/stardict-dic/dict.org
+source=($_mirror/stardict-dictd_www.dict.org_gcide-2.4.2.tar.bz2)
 arch=('i686' 'x86_64')
 
-build() {
+package() {
         mkdir -p $pkgdir/usr/share/stardict/dic/
         cd $srcdir/stardict-dictd_www.dict.org_gcide-$pkgver
         install -m 644 dictd_www.dict.org_gcide.dict.dz $pkgdir/usr/share/stardict/dic/
         install -m 644 dictd_www.dict.org_gcide.idx $pkgdir/usr/share/stardict/dic/
         install -m 644 dictd_www.dict.org_gcide.ifo $pkgdir/usr/share/stardict/dic/
-  
 }
 
 
