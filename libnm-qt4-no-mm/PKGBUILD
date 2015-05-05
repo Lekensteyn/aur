@@ -3,8 +3,8 @@
 
 pkgname=libnm-qt4-no-mm
 groups=('modified')
-pkgver=0.9.8.3
-pkgrel=2
+pkgver=0.9.8.4
+pkgrel=1
 pkgdesc='Qt4-only wrapper for NetworkManager DBus API'
 arch=('i686' 'x86_64')
 url='https://projects.kde.org/projects/frameworks/networkmanager-qt'
@@ -13,12 +13,8 @@ depends=('qt4' 'networkmanager')
 conflicts=('libnm-qt' 'libnm-qt4')
 provides=('libnm-qt' 'libnm-qt4')
 makedepends=('cmake' 'doxygen')
-source=("http://download.kde.org/unstable/networkmanager-qt/${pkgver}/src/libnm-qt-${pkgver}.tar.xz"
-        "0001-Checking-for-security-in-wireless-setting-won-t-work.patch")
-# Apparently there have been multiple "0.9.8.3"s. The listed one has included
-# Doxyfile patches (compared against the v0.9.8.3 git tag)
-sha256sums=('6c74ed6cb6e96088fbee709feddd1a1da0de46b64023cde4e26c841b8171105b'
-            '70243ab5eb403ca33cfedcf61b73718877d51b58cdca4cb9450eaa275c2d240f')
+source=("http://download.kde.org/unstable/networkmanager-qt/${pkgver}/src/networkmanager-qt-${pkgver}.tar.xz")
+sha256sums=('3c6758da6c12668198ff8fdeda2f04c7b620f2ef1a506a1bdaeda63c06fbaff4')
 
 prepare() {
   mkdir -p build
@@ -26,7 +22,7 @@ prepare() {
 
 build() {
   cd build
-  cmake ../libnm-qt-${pkgver} \
+  cmake ../networkmanager-qt-${pkgver} \
     -DDISABLE_MODEMMANAGERQT=1 \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_INSTALL_PREFIX=/usr \
