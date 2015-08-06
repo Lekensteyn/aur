@@ -1,0 +1,25 @@
+# $Id: PKGBUILD 241901 2015-07-09 12:40:08Z tpowa $
+# Maintainer: Sergej Pupykin <pupykin.s+arch@gmail.com>
+# Maintainer: Patryk Kowalczyk < patryk at kowalczyk dot ws>
+
+pkgname=spice-protocol
+pkgver=0.12.8
+pkgrel=1
+pkgdesc="Headers for SPICE protocol"
+arch=(any)
+url="http://spice-space.org"
+license=('BSD' 'LGPL2.1')
+source=(http://spice-space.org/download/releases/$pkgname-$pkgver.tar.bz2)
+
+build() {
+  cd "$srcdir/$pkgname-$pkgver"
+  ./configure --prefix=/usr
+  make
+}
+
+package() {
+  cd "$srcdir/$pkgname-$pkgver"
+  make DESTDIR="$pkgdir/" install
+  install -Dm644 COPYING "$pkgdir/usr/share/licenses/$pkgname/COPYING"
+}
+md5sums=('18c07caa8555de5f914f379d853d54b3')
