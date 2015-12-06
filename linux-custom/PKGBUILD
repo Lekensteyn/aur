@@ -203,6 +203,7 @@ _package-headers() {
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/net/mac80211/"
   cp net/mac80211/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/net/mac80211/"
 
+if grep 'CONFIG_DVB_CORE=[ym]' .config; then
   # add dvb headers for external modules
   # in reference to:
   # http://bugs.archlinux.org/task/9912
@@ -230,6 +231,7 @@ _package-headers() {
   cp drivers/media/dvb-frontends/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/dvb-frontends/"
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/tuners"
   cp drivers/media/tuners/*.h "${pkgdir}/usr/lib/modules/${_kernver}/build/drivers/media/tuners/"
+fi # CONFIG_DVB_CORE
 
   # add xfs and shmem for aufs building
   mkdir -p "${pkgdir}/usr/lib/modules/${_kernver}/build/fs/xfs"
