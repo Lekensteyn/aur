@@ -2,9 +2,10 @@
 # Maintainer: Thomas Baechler <thomas@archlinux.org>
 
 pkgbase=linux-custom
-_scmversion=
-_srcname=linux-4.3
-pkgver=${_srcname#linux-}${_scmversion//-/_}
+_basekernel=4.5-rc1
+_scmversion=-00028-g03c21cb
+_srcname=linux-${_basekernel}
+pkgver=${_basekernel//-/_}${_scmversion//-/_}
 pkgrel=1
 arch=('i686' 'x86_64')
 url="http://www.kernel.org/"
