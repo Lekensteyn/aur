@@ -2,8 +2,8 @@
 # Maintainer: Thomas Baechler <thomas@archlinux.org>
 
 pkgbase=linux-custom
-_basekernel=4.5-rc2
-_scmversion=-00192-gb37a05c
+_basekernel=4.8
+_scmversion=
 _srcname=linux-${_basekernel}
 pkgver=${_basekernel//-/_}${_scmversion//-/_}
 pkgrel=1
